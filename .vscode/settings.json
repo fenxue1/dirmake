@@ -1,0 +1,33 @@
+{
+    "files.associations": {
+        "subtract.h": "c",
+        "utils.h": "c",
+        "multiply.h": "c",
+        "vector.h": "c",
+        "stdlib.h": "c",
+        "stdio.h": "c",
+        "m_math.h": "c",
+        "string.h": "c",
+        "test_leetecode.h": "c",
+        "list.h": "c",
+        "mempool.h": "c",
+        "assert.h": "c",
+        "threadpool.h": "c",
+        "locale.h": "c",
+        "cjson.h": "c",
+        "mapset.h": "c",
+        "hashmap.h": "c",
+        "math.h": "c",
+        "valuerange.h": "c",
+        "optional": "c",
+        "istream": "c",
+        "ostream": "c",
+        "system_error": "c",
+        "array": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "common.h": "c",
+        "stdbool.h": "c"
+    }
+}
