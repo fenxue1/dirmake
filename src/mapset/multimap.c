@@ -2,7 +2,7 @@
  * @Author: fenxue1 99110925+fenxue1@users.noreply.github.com
  * @Date: 2024-11-27 01:05:01
  * @LastEditors: fenxue1 99110925+fenxue1@users.noreply.github.com
- * @LastEditTime: 2024-11-27 07:40:50
+ * @LastEditTime: 2024-11-29 23:48:12
  * @FilePath: \test_cmake\src\mapset\multimap.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -36,7 +36,7 @@ void multimap_insert(MultiMap* map, const char* key, int value) {
         current = current->next;
     }
 
-    // 如果键不存在，创建新的键值对
+    // 如果键不存在，创建新的键值对   http://ckapi.sevenbrothers.cn/bili/api?id=BV1odwVefE8U
     KeyValuePair* new_pair = malloc(sizeof(KeyValuePair));
     if (!new_pair) return;
     new_pair->key = strdup(key);
@@ -56,6 +56,9 @@ void multimap_insert(MultiMap* map, const char* key, int value) {
     map->head = new_pair;
 }
 
+void multimap_find(MultiMap *map, const char *key)
+{
+}
 
 ValueNode* mapmultimap_find(MultiMap* map, const char* key) {
     if (!map || !key) return NULL;

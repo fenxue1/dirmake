@@ -10,14 +10,14 @@
 #define VECTOR_H
 
 typedef struct {
-    int *data;
-    size_t size;
+    void **data;// 使用 void* 指针数组存储任意类型的数据
+    size_t size; // 当前元素数量
     size_t capacity;
 } Vector;
 
 Vector* create_vector(size_t capacity);
-void vector_push_back(Vector *vector, int value);
-int vector_pop(Vector *vector);
+void vector_push_back(Vector *vector,void *value);
+void* vector_pop(Vector *vector);
 void free_vector(Vector *vector);
 
 #endif // VECTOR_H

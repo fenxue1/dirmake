@@ -294,7 +294,7 @@ void test_Tuple()
 
 
 
-int  test_paer(void)
+int  test_paer()
 {
            // 压力测试
     List* list = create_list();
@@ -350,28 +350,8 @@ int  test_paer(void)
     // 清理
     free(json_string);
     cJSON_Delete(root);
-}
 
-
-void move_elements(List *l, List *lb, size_t i, size_t len){
-    Node *current = l->head;
-    Node *to_move = NULL;
-
-    //找到要移动的节点  
-    for(size_t j = 0;j<len && current != NULL;j++){
-        if(j < i ){
-            //记录这个要移动的节点
-            to_move = current;
-            current = current->next;
-        }else{
-            //移除这个节点
-            list_remove(l,current);
-            //插入到lb中
-            list_insert_sorted(lb, to_move->data); // 插入到 lb 中
-            current = current->next;
-        }   
-    }
-
+    
 
 
 }

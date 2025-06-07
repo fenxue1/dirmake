@@ -62,6 +62,14 @@ typedef struct {
 } Tuple;
 
 
+typedef struct{
+    int bck_io_num;/*BCK输出*/
+    int ws_io_num;/*WS输出引脚*/
+    int data_out_num;/*data食醋胡*/
+    int data_in_num;/*data输出引脚*/
+}i2s_pin_config_t;  /*Data 输出引脚*/
+
+
 
 extern MemoryTracker mem_tracker; // 声明内存跟踪器
 
@@ -86,8 +94,6 @@ void tuple_print(const Tuple* tuple);
 void tuple_free(Tuple* tuple);
 /****************************************************/
 void test_Tuple();
-
-void move_elements(List *l, List *lb, size_t i, size_t len);
 
 
 #endif // COMMON_H  

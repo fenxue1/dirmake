@@ -2,7 +2,7 @@
  * @Author: fenxue1 99110925+fenxue1@users.noreply.github.com
  * @Date: 2024-11-18 00:19:29
  * @LastEditors: fenxue1 99110925+fenxue1@users.noreply.github.com
- * @LastEditTime: 2024-11-27 23:05:53
+ * @LastEditTime: 2024-12-05 20:35:48
  * @FilePath: \test_cmake\src\list\list.h
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -45,17 +45,12 @@ typedef struct {
     List* list;  // 使用 List 作为栈的底层数据结构
 } Stack;
 
+
+typedef struct {
+    List* list; // 使用链表作为底层存储
+} Deque;
 // 函数声明
 List* create_list();
-// 函数：create_mempool_list
-// 功能：创建一个使用内存池的链表
-// 参数：
-// - max_nodes：表示内存池允许的最大节点数量
-// 注意：此函数可能会根据传入的最大节点数量创建一个内存池，并将其与链表关联，
-// 以提高内存分配和释放的效率，避免频繁的系统调用。
-// 可能会涉及到内存池的初始化操作，以及链表结构的初始化，
-// 例如设置链表的头指针、尾指针、大小等信息。
-List *create_mempool_list(size_t max_nodes);
 void list_append(List* list, void* value);
 void list_prepend(List* list, void* value);
 void list_delete_node(List* list, Node* node);
@@ -75,16 +70,6 @@ void Node_merge_sort(Node** head);
 // 排序链表
 void list_sort(List* list);
 
-// 函数：list_insert_sorted
-// 功能：将元素按照一定的顺序插入到链表中
-// 参数：
-// - list：指向 List 结构体的指针，表示要操作的链表
-// - value：要插入的元素，使用 void* 指针表示，可以存储任意类型的数据
-// 注意：此函数的具体实现可能需要根据元素的比较规则来确定插入位置，以保证链表的有序性
-// 例如，如果存储的是整数，可以根据整数的大小进行排序；如果存储的是字符串，可以根据字符串的字典序进行排序
-// 该函数的实现可能会涉及遍历链表，找到合适的插入位置，然后更新节点的前后指针
-void list_insert_sorted(List *list, void* value);
-
 // 反向打印链表
 void list_print_reverse_list(List* list, void (*print_func)(void*));
 
@@ -101,10 +86,71 @@ void destroy_skiplist(SkipList *list);
 
 /*********************************/
 // 函数声明
+// 函数声明：create_stack
+// 该函数用于创建一个 Stack 类型的对象
+// 返回值：指向 Stack 结构体的指针
 Stack* create_stack();
+// 函数声明：stack_push
+// 该函数用于将元素添加到栈（Stack）中
+// 参数：
+//    stack：指向栈（Stack）结构体的指针，表示要操作的栈
+//    value：指向要添加元素的指针，元素的类型为 void*，可以是任意类型的数据
 void stack_push(Stack* stack, void* value);
+// 函数声明：stack_pop
+// 该函数用于从栈（Stack）中弹出元素
+// 参数：
+//    stack：指向栈（Stack）结构体的指针，表示要操作的栈
+// 返回值：
+//    void* 类型的指针，指向从栈中弹出的元素，元素的类型为 void*，可以是任意类型的数据
 void* stack_pop(Stack* stack);
+// 函数声明：stack_peek
+// 该函数用于查看栈（Stack）的栈顶元素，但不将其从栈中移除
+// 参数：
+//    stack：指向栈（Stack）结构体的指针，表示要操作的栈
+// 返回值：
+//    void* 类型的指针，指向栈顶元素，元素的类型为 void*，可以是任意类型的数据
 void* stack_peek(const Stack* stack);
+// 函数声明：free_stack
+// 该函数用于释放栈（Stack）所占用的内存
+// 参数：
+//    stack：指向栈（Stack）结构体的指针，表示要释放内存的栈
 void free_stack(Stack* stack);
+/*********************************/
+
+// 函数声明：create_deque
+// 该函数用于创建一个 Deque 类型的对象
+// 返回值：指向 Deque 结构体的指针
+Deque* create_deque();
+// 函数声明：deque_push_front
+// 该函数用于将元素添加到双端队列（Deque）的前端
+// 参数：
+//    deque：指向双端队列（Deque）结构体的指针，表示要操作的双端队列
+//    value：指向要添加元素的指针，元素的类型为 void*，可以是任意类型的数据
+void deque_push_front(Deque* deque, void* value);
+// 函数声明：deque_push_back
+// 该函数用于将元素添加到双端队列（Deque）的后端
+// 参数：
+//    deque：指向双端队列（Deque）结构体的指针，表示要操作的双端队列
+//    value：指向要添加元素的指针，元素的类型为 void*，可以是任意类型的数据
+void deque_push_back(Deque* deque, void* value);
+// 函数声明：deque_pop_front
+// 该函数用于从双端队列（Deque）的前端移除元素
+// 参数：
+//    deque：指向双端队列（Deque）结构体的指针，表示要操作的双端队列
+// 返回值：
+//    void* 类型的指针，指向从双端队列前端移除的元素，元素的类型为 void*，可以是任意类型的数据
+void* deque_pop_front(Deque* deque);
+// 函数声明：deque_pop_back
+// 该函数用于从双端队列（Deque）的后端移除元素
+void* deque_pop_back(Deque* deque);
+// 函数声明：deque_front
+// 该函数用于获取双端队列（Deque）的前端元素
+void* deque_front(Deque* deque);
+// 函数声明：deque_back
+// 该函数用于获取双端队列（Deque）的后端元素
+void* deque_back(Deque* deque);
+// 函数声明：free_deque
+// 该函数用于释放双端队列（Deque）所占用的内存
+void free_deque(Deque* deque);
 /*********************************/
 #endif // LIST_H

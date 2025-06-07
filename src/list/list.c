@@ -17,29 +17,6 @@ List *create_list()
     return list;
 }
 
-List *create_mempool_list(size_t max_nodes)
-{
-     List *list = (List *)malloc(sizeof(List));
-    if (!list) {
-        fprintf(stderr, "Failed to allocate memory for list.\n");
-        return NULL;
-    }
-
-    list->head = NULL;
-    list->tail = NULL;
-    list->size = 0;
-
-    // 创建内存池，使用传入的节点数量
-    list->node_pool = mempool_create(sizeof(Node), max_nodes);
-    if (!list->node_pool) {
-        free(list);
-        return NULL;
-    }
-
-    return list;
-}
-
-
 // 在链表末尾添加一个新节点
 void list_append(List *list, void* value)
 {
@@ -382,5 +359,3 @@ void free_list(List *list)
     mempool_destroy(list->node_pool); // 销毁内存池
     free(list);
 }
-
-

@@ -16,6 +16,7 @@ set(SOURCES
     src/list/list.c  # 添加新的源文件
     src/list/skiplist.c  # 添加新的源文件
     src/list/Stack.c  # 添加新的源文件
+    src/list/deque.c  # 添加新的源文件
     src/test_leetecode/test_leetecode.c
     src/threadpool/threadpool.c
     src/mempool/mempool.c
