@@ -1,4 +1,5 @@
 #include "test_leetecode.h"
+#include "tr_text.h"
 
 
 
@@ -17,5 +18,20 @@ int lengthOfLongestSubstring(char *s) {
 
     return maxLength;
 }
+
+static const _Tr_TEXT txt_input_points = {
+    "输入点",
+    "Input Points",
+    "Điểm nhập vào",
+    "입력 포인트",
+    "Giriş Noktaları",
+    "Точки ввода",
+    "Puntos de entrada",
+    "Pontos de entrada",
+    "نقاط ورودی",
+    "入力ポイント",
+    "نقاط الإدخال",
+    "其它"
+};
 
 

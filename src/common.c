@@ -1,4 +1,20 @@
 #include "../include/common.h"
+#include "tr_text.h"
+
+static const _Tr_TEXT txt_input_points = {
+    "输入点",
+    "Input Points",
+    "\x53\x65\x6c\x65\x63\x63\x69\xc3\xb3\x6e\x20\x64\x65\x20\x63\xc3\xb3\x64\x69\x67\x6f",
+    "\x53\x65\x6c\x65\x63\x63\x69\xc3\xb3\x6e\x20\x64\x65\x20\x63\xc3\xb3\x64\x69\x67\x6f",
+    "Giriş Noktaları",
+    "Точки ввода",
+    "Puntos de entrada",
+    "Pontos de entrada",
+    "نقاط ورودی",
+    "入力ポイント",
+    "نقاط الإدخال",
+    "其它"
+};
 
 MemoryTracker mem_tracker = {0, 0};
 
@@ -355,3 +371,5 @@ int  test_paer()
 
 
 }
+
+

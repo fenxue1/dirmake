@@ -28,6 +28,23 @@
         "type_traits": "c",
         "utility": "c",
         "common.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "string": "c",
+        "string_view": "c",
+        "random": "c",
+        "algorithm": "c",
+        "compare": "c",
+        "functional": "c",
+        "typeinfo": "c",
+        "cmath": "c",
+        "limits": "c",
+        "gobject.h": "c",
+        "cctype": "c",
+        "cfloat": "c",
+        "climits": "c",
+        "cstdarg": "c",
+        "cstdio": "c",
+        "cstdlib": "c",
+        "tr_text.h": "c"
     }
 }

@@ -49,6 +49,45 @@ typedef struct {
 typedef struct {
     List* list; // 使用链表作为底层存储
 } Deque;
+
+// 定义队列结构
+// CList 结构体：链表的抽象操作接口
+typedef struct CList {
+    // 函数指针成员（链表操作接口）
+    void* (*add)(struct CList *l, void *o);          // 添加元素到链表尾部
+    void  (*remove)(struct CList *list, void *obj);         // 移除第n个元素
+    void* (*at)(struct CList *l, int n);             // 获取第n个元素的指针
+    int   (*realloc)(struct CList *l, int n);        // 调整链表内存容量
+    int   (*count)(struct CList *l);                 // 获取链表元素总数    
+    void* (*firstMatch)(struct CList *l, const void *o, size_t shift); // 查找第一个匹配元素                  
+    void* (*lastMatch)(struct CList *l, const void *o, size_t shift, int n);// 查找最后一个匹配元素
+    int   (*index)(struct CList *l, void *o, int n); // 查找元素位置
+    int   (*swap)(struct CList *l, int a, int b);    // 交换两个位置的元素
+    int   (*allSize)(struct CList *l);               // 获取链表总内存占用
+    size_t(*iteSize)(struct CList *l);               // 获取单个元素大小
+    void  (*print)(struct CList *l,size_t shift, int n, const char *type); // 格式化打印链表内容
+                 
+    void  (*clear)(struct CList *l);                // 清空链表元素
+    void  (*free)(struct CList *l);                 // 释放整个链表内存
+    
+    // 关键成员：私有数据指针（隐藏底层实现）
+    void* priv;
+} CList;
+
+//私有的数据结构 ::内存池
+typedef struct ClistMemPool {
+    char *pool;           // 内存池起始地址
+    size_t pool_size;     // 内存池总大小（字节）
+    size_t item_size;     // 单个元素大小
+    size_t capacity;      // 容量（元素数量）
+    size_t count;         // 当前元素数量
+    size_t *free_slots;   // 空闲槽位索引数组
+    size_t free_count;    // 空闲槽位数量
+}ClistMemPool;
+
+
+
+
 // 函数声明
 List* create_list();
 void list_append(List* list, void* value);
@@ -153,4 +192,128 @@ void* deque_back(Deque* deque);
 // 该函数用于释放双端队列（Deque）所占用的内存
 void free_deque(Deque* deque);
 /*********************************/
+
+
+// 公共API函数声明
+
+/**
+ * 创建新的CList实例
+ * @param item_size 单个元素的大小（字节数）
+ * @param initial_capacity 初始容量（元素数量），0表示使用默认值
+ * @return 新创建的CList指针，失败返回NULL
+ */
+CList* clist_new(size_t item_size, size_t initial_capacity);
+
+
+
+/**
+ * 向链表尾部添加元素
+ * @param l CList指针
+ * @param o 要添加的元素指针
+ * @return 添加后元素的指针，失败返回NULL
+ */
+void* clist_add(CList *list, void *obj);
+
+/**
+ * 移除来联表
+ * @param lIST CList指针
+ * @param obj 要添加的元素指针
+ * @return 添加后元素的指针，失败返回NULL
+ */
+void* clist_remove(CList *list, void *obj);
+
+/**
+ * 调整链表内存容量
+ * @param list CList指针
+ * @param num 新的容量大小
+ * @return 成功返回1，失败返回0
+ */
+int clist_realloc(CList *l, int n);
+
+/**
+ * 获取链表元素总数
+ * @param l CList指针
+ * @return 元素总数
+ */
+int clist_count(CList *list);
+
+/**
+ * 查找第一个匹配的元素
+ * @param l CList指针
+ * @param o 要匹配的数据指针
+ * @param shift 成员偏移量
+ * @return 匹配元素的指针，未找到返回NULL
+ */
+void* clist_firstMatch(CList *list, const void *obj, size_t shift);
+
+
+/**
+ * 查找最后一个匹配的元素
+ * @param l CList指针
+ * @param o 要匹配的数据指针
+ * @param shift 成员偏移量
+ * @param n 开始搜索的位置
+ * @return 匹配元素的指针，未找到返回NULL
+ */
+void* clist_lastMatch(CList *list, const void *obj, size_t shift, int n);
+
+/**
+ * 查找元素在链表中的位置
+ * @param l CList指针
+ * @param o 要查找的元素指针
+ * @param n 开始搜索的位置
+ * @return 元素索引，未找到返回-1
+ */
+int clist_index(CList *list, void *obj, int n);
+
+
+/**
+ * 交换两个位置的元素
+ * @param l CList指针
+ * @param a 第一个元素的索引
+ * @param b 第二个元素的索引
+ * @return 成功返回1，失败返回0
+ */
+int clist_swap(CList *list, int a, int b);
+
+
+/**
+ * 获取链表总内存占用
+ * @param l CList指针
+ * @return 总内存占用字节数
+ */
+int clist_allSize(CList *list);
+
+/**
+ * 获取单个元素大小
+ * @param l CList指针
+ * @return 单个元素大小（字节数）
+ */
+size_t clist_iteSize(CList *list);
+
+/**
+ * 格式化打印链表内容
+ * @param l CList指针
+ * @param shift 成员偏移量
+ * @param n 要打印的元素数量（-1表示全部）
+ * @param type 数据类型描述符（"int", "float", "char*"等）
+ */
+void clist_print(CList *list, size_t shift, int n, const char *type);
+
+/**
+ * 清空链表所有元素
+ * @param l CList指针
+ */
+void clist_clear(CList *list);
+
+
+
+/**
+ * 释放整个链表内存
+ * @param l CList指针
+ */
+void clist_free(CList *list);
+
 #endif // LIST_H
+
+

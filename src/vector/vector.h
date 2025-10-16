@@ -21,3 +21,28 @@ void* vector_pop(Vector *vector);
 void free_vector(Vector *vector);
 
 #endif // VECTOR_H
+
+
+
+// # 指定源文件
+// set(SOURCES
+//     src/main.c
+//     src/math/add.c
+//     src/math/subtract.c
+//     src/math/multiply.c  # 添加新的源文件
+//     src/utils/utils.c
+//     src/vector/vector.c  # 添加新的源文件
+//     src/list/list.c  # 添加新的源文件
+//     src/list/skiplist.c  # 添加新的源文件
+//     src/list/Stack.c  # 添加新的源文件
+//     src/list/deque.c  # 添加新的源文件
+//     src/test_leetecode/test_leetecode.c
+//     src/threadpool/threadpool.c
+//     src/mempool/mempool.c
+//     src/cjson/cJSON.c
+//     src/mapset/mapset.c
+//     src/mapset/hashmap.c
+//     src/mapset/multimap.c
+//     src/ValueRange/ValueRange.c
+//     src/common.c  # 添加新的源文件
+// )

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mempool.h"
+#include "tr_text.h"
 
 // 创建内存池
 MemoryPool* mempool_create(size_t block_size, size_t block_count) {
@@ -56,3 +57,18 @@ void mempool_destroy(MemoryPool* pool) {
         free(pool);
     }
 }
+
+static const _Tr_TEXT txt_input_points = {
+    "输入点",
+    "Input Points",
+    "Điểm nhập vào",
+    "입력 포인트",
+    "Giriş Noktaları",
+    "\x4e\xc3\xba\x6d\x65\x72\x6f\x20\x64\x65\x20\x63\xc3\xb3\x64\x69\x67\x6f\x73\x3a",
+    "Puntos de entrada",
+    "Pontos de entrada",
+    "نقاط ورودی",
+    "入力ポイント",
+    "نقاط الإدخال",
+    "其它"
+};

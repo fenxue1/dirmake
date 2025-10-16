@@ -9,6 +9,22 @@
 #include <stdlib.h>
 #include "vector.h"
 #include <stdio.h> // 包含 printf 的定义
+#include "tr_text.h"
+
+static const _Tr_TEXT txt_input_points = {
+    "输入点",
+    "Input Points",
+    "Điểm nhập vào",
+    "입력 포인트",
+    "Giriş Noktaları",
+    "Точки ввода",
+    "Puntos de entrada",
+    "Pontos de entrada",
+    "نقاط ورودی",
+    "入力ポイント",
+    "نقاط الإدخال",
+    "其它"
+};
 Vector* create_vector(size_t capacity) {
     Vector *vector = (Vector *)malloc(sizeof(Vector));
     if (!vector) {
@@ -57,3 +73,4 @@ void free_vector(Vector *vector) {
     free(vector->data);
     free(vector);
 }
+

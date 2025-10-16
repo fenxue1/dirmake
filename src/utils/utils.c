@@ -2,17 +2,36 @@
  * @Author: fenxue1 99110925+fenxue1@users.noreply.github.com
  * @Date: 2024-11-17 22:59:06
  * @LastEditors: fenxue1 99110925+fenxue1@users.noreply.github.com
- * @LastEditTime: 2024-11-25 19:14:29
+ * @LastEditTime: 2025-10-08 22:19:13
  * @FilePath: \test_cmake\src\utils\utils.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 #include "utils.h"
+#include "tr_text.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 int add(int a, int b) {
     return a + b;
 }
+
+static const _Tr_TEXT txt_input_points = {
+    "输入点",
+    "Input Points",
+    "Điểm nhập vào",
+    "입력 포인트",
+    "Giriş Noktaları",
+    "Точки ввода",
+    "Puntos de entrada",
+    "Pontos de entrada",
+    "نقاط ورودی",
+    "入力ポイント",
+    "نقاط الإدخال",
+    "其它"
+};
+
+
+
 
 
 
@@ -206,3 +225,67 @@ void trigger_event_with_filter(Object* obj, Event* event, EventFilter filter) {
 
 //     return 0;
 // }
+
+
+// 创建新的孩子节点
+CTNode* createChildNode(int childIndex) {
+    CTNode* newNode = (CTNode*)malloc(sizeof(CTNode));
+    newNode->child = childIndex;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// 添加孩子节点
+void addChild(CTree* tree, int parentIndex, int childIndex) {
+    if (parentIndex < 0 || parentIndex >= tree->n || childIndex < 0 || childIndex >= tree->n) {
+        printf("无效的索引\n");
+        return;
+    }
+
+    CTNode* newChild = createChildNode(childIndex);
+    if (tree->nodes[parentIndex].firstchild == NULL) {
+        tree->nodes[parentIndex].firstchild = newChild; // 如果没有孩子，直接添加
+    } else {
+        CTNode* temp = tree->nodes[parentIndex].firstchild;
+        while (temp->next != NULL) {
+            temp = temp->next; // 找到最后一个孩子
+        }
+        temp->next = newChild; // 添加到最后
+    }
+}
+
+// 计算节点的度
+int calculateDegree(CTree* tree, int index) {
+    if (index < 0 || index >= tree->n) {
+        return -1; // 无效的索引
+    }
+
+    CTNode* child = tree->nodes[index].firstchild;
+    int degree = 0;
+
+    // 遍历所有孩子节点
+    while (child != NULL) {
+        degree++;
+        child = child->next; // 移动到下一个兄弟节点
+    }
+
+    return degree;
+}
+
+// 打印树的结构和每个节点的度
+void printTreeAndDegrees(CTree* tree) {
+    for (int i = 0; i < tree->n; i++) {
+        printf("节点 %d (数据: %d): ", i, tree->nodes[i].data);
+        CTNode* child = tree->nodes[i].firstchild;
+        while (child != NULL) {
+            printf("%d ", child->child);
+            child = child->next;
+        }
+        int degree = calculateDegree(tree, i);
+        printf(" | 度: %d\n", degree);
+    }
+}
+
+
+
+

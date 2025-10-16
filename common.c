@@ -1,4 +1,5 @@
 #include "../include/common.h"
+#include "tr_text.h"
 
 MemoryTracker mem_tracker = {0, 0};
 
@@ -23,6 +24,21 @@ void test_function() {
     assert(arr != NULL);
     tracked_free(arr, 10 * sizeof(int)); // 记得释放内存
 }
+
+static const _Tr_TEXT txt_input_points = {
+    "输入点",
+    "Input Points",
+    "Điểm nhập vào",
+    "입력 포인트",
+    "Giriş Noktaları",
+    "Точки ввода",
+    "Puntos de entrada",
+    "Pontos de entrada",
+    "نقاط ورودی",
+    "入力ポイント",
+    "نقاط الإدخال",
+    "其它"
+};
 
 void parse_json(const char *filename) {
     // 读取 JSON 文件

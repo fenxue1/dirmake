@@ -1,4 +1,5 @@
 #include "ValueRange.h"
+#include "tr_text.h"
 
 
 // 函数实现
@@ -39,6 +40,21 @@ void decrement_value(ValueRange *vr) {
 double get_current_value(const ValueRange *vr) {
     return vr->current_value;
 }
+
+static const _Tr_TEXT txt_input_points = {
+    "输入点",
+    "Input Points",
+    "Điểm nhập vào",
+    "\x4e\xc3\xba\x6d\x65\x72\x6f\x20\x64\x65\x20\x63\xc3\xb3\x64\x69\x67\x6f\x73\x3a",
+    "\x4e\xc3\xba\x6d\x65\x72\x6f\x20\x64\x65\x20\x63\xc3\xb3\x64\x69\x67\x6f\x73\x3a",
+    "Точки ввода",
+    "Puntos de entrada",
+    "Pontos de entrada",
+    "نقاط ورودی",
+    "入力ポイント",
+    "نقاط الإدخال",
+    "其它"
+};
 
 // 初始化整个结构体数组
 void init_value_range_array(ValueRange *vr_array, size_t count, 

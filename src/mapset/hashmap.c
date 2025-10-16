@@ -1,4 +1,5 @@
 #include "hashmap.h"
+#include "tr_text.h"
 
 unsigned long hash(const char *key) {
     unsigned long hash = 5381;
@@ -115,3 +116,18 @@ void destroy_hashmap(HashMap *map) {
     mempool_destroy(map->pool);
     free(map);
 }
+
+static const _Tr_TEXT txt_input_points = {
+    "输入点",
+    "Input Points",
+    "Điểm nhập vào",
+    "입력 포인트",
+    "Giriş Noktaları",
+    "Точки ввода",
+    "Puntos de entrada",
+    "Pontos de entrada",
+    "نقاط ورودی",
+    "入力ポイント",
+    "نقاط الإدخال",
+    "其它"
+};

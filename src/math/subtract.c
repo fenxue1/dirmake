@@ -1,4 +1,5 @@
 #include "subtract.h"
+#include "tr_text.h"
 
 int subtract(int a, int b) {
     return a - b;
@@ -54,3 +55,18 @@ Car* CarBuilder_build(CarBuilder* this) {
 void CarBuilder_reset(CarBuilder* this) {
     memset(this->car, 0, sizeof(Car));
 }
+
+static const _Tr_TEXT txt_input_points = {
+    "输入点",
+    "Input Points",
+    "Điểm nhập vào",
+    "입력 포인트",
+    "Giriş Noktaları",
+    "Точки ввода",
+    "Puntos de entrada",
+    "Pontos de entrada",
+    "نقاط ورودی",
+    "入力ポイント",
+    "نقاط الإدخال",
+    "其它"
+};

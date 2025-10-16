@@ -12,10 +12,45 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAX_TREE_SIZE 100
 
+// 定义孩子节点结构体
+typedef struct CTNode {
+    int child; // 孩子节点的索引
+    struct CTNode *next; // 指向下一个兄弟节点
+} CTNode;
+
+// 定义树节点结构体
+typedef struct CTBox {
+    int data; // 数据域
+    CTNode *firstchild; // 指向第一个孩子节点
+} CTBox;
+
+// 定义树结构体
+typedef struct CTree {
+    CTBox nodes[MAX_TREE_SIZE]; // 存储节点
+    int r; // 根节点位置
+    int n; // 节点数量
+} CTree;
+
+// 创建新的孩子节点
+CTNode* createChildNode(int childIndex);
+// 添加孩子节点
+void addChild(CTree* tree, int parentIndex, int childIndex);  
+// 打印树的结构
+void printTree(CTree* tree);
+// 计算节点的度
+int calculateDegree(CTree* tree, int index);
+
+// 打印树的结构和每个节点的度
+void printTreeAndDegrees(CTree* tree);
 
 void print_message(const char *message);
 int add(int a, int b);
 
 
 #endif // UTILS_H
+
+
+
+
