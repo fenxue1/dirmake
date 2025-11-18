@@ -98,18 +98,11 @@ namespace CsvLangPlugin
         for (int i = 0; i < s.size(); ++i)
         {
             QChar ch = s.at(i);
-            ushort u = ch.unicode();
-            if (ch == QLatin1Char('\\')) out.append(QLatin1String("\\\\"));
-            else if (ch == QLatin1Char('"')) out.append(QLatin1String("\\\""));
+            if (ch == QLatin1Char('"')) out.append(QLatin1String("\\\""));
             else if (ch == QLatin1Char('\n')) out.append(QLatin1String("\\n"));
             else if (ch == QLatin1Char('\r')) out.append(QLatin1String("\\r"));
             else if (ch == QLatin1Char('\t')) out.append(QLatin1String("\\t"));
-            else if (u < 0x20)
-            {
-                out.append(QStringLiteral("\\x%1").arg(QString::number(u, 16).rightJustified(2, QLatin1Char('0')).toUpper()));
-            }
-            else
-                out.append(ch);
+            else out.append(ch);
         }
         return out;
     }
@@ -121,13 +114,24 @@ namespace CsvLangPlugin
     {
         Q_UNUSED(structLangs);
         Q_UNUSED(colMap);
-        QStringList items;
-        items.reserve(csvValues.size() + 1);
-        for (const QString &v : csvValues)
-            items << QStringLiteral("\"%1\"").arg(cEscape(v));
-        items << QStringLiteral("NULL");
-        QString indent = QStringLiteral("\n    ");
-        return indent + items.join(QStringLiteral(",") + indent);
+        QString out;
+        if (!csvValues.isEmpty())
+        {
+            out = QStringLiteral("\"%1\",").arg(cEscape(csvValues.first()));
+            for (int i = 1; i < csvValues.size(); ++i)
+            {
+                QString esc = cEscape(csvValues.at(i));
+                if (i == csvValues.size() - 1)
+                    out += QStringLiteral("\n      \"%1\", NULL").arg(esc);
+                else
+                    out += QStringLiteral("\n      \"%1\",").arg(esc);
+            }
+        }
+        else
+        {
+            out = QStringLiteral("NULL");
+        }
+        return out;
     }
 
     static QMutex gFileWriteMutex;
