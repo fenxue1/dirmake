@@ -91,6 +91,29 @@ namespace CsvLangPlugin
         out << cur; return out;
     }
 
+    static QString cEscape(const QString &s)
+    {
+        QString out;
+        out.reserve(s.size() * 2);
+        for (int i = 0; i < s.size(); ++i)
+        {
+            QChar ch = s.at(i);
+            ushort u = ch.unicode();
+            if (ch == QLatin1Char('\\')) out.append(QLatin1String("\\\\"));
+            else if (ch == QLatin1Char('"')) out.append(QLatin1String("\\\""));
+            else if (ch == QLatin1Char('\n')) out.append(QLatin1String("\\n"));
+            else if (ch == QLatin1Char('\r')) out.append(QLatin1String("\\r"));
+            else if (ch == QLatin1Char('\t')) out.append(QLatin1String("\\t"));
+            else if (u < 0x20)
+            {
+                out.append(QStringLiteral("\\x%1").arg(QString::number(u, 16).rightJustified(2, QLatin1Char('0')).toUpper()));
+            }
+            else
+                out.append(ch);
+        }
+        return out;
+    }
+
     static QString replaceInitializerBodyPreservingFormat(const QString &body,
                                                           const QStringList &structLangs,
                                                           const QStringList &csvValues,
@@ -101,9 +124,10 @@ namespace CsvLangPlugin
         QStringList items;
         items.reserve(csvValues.size() + 1);
         for (const QString &v : csvValues)
-            items << QStringLiteral("\"%1\"").arg(v);
+            items << QStringLiteral("\"%1\"").arg(cEscape(v));
         items << QStringLiteral("NULL");
-        return items.join(QStringLiteral(", "));
+        QString indent = QStringLiteral("\n    ");
+        return indent + items.join(QStringLiteral(",") + indent);
     }
 
     static QMutex gFileWriteMutex;
