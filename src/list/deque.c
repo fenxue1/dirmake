@@ -9,7 +9,7 @@
 #include "list.h"
 #include "tr_text.h"
 
-static const _Tr_TEXT txt_input_points = {
+static const _Tr_TEXT txt_input_points_888 = {
     "输入点",
     "Input Points",
     "Điểm nhập vào",

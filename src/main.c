@@ -41,7 +41,7 @@
 #include "ValueRange/ValueRange.h"
 #include "tr_text.h"
 
-static const _Tr_TEXT txt_input_points = {
+static const _Tr_TEXT txt_input_points_4444= {
     "输入点",
     "Input Points",
     "\x53\x65\x6c\x65\x63\x63\x69\xc3\xb3\x6e\x20\x64\x65\x20\x63\xc3\xb3\x64\x69\x67\x6f",

@@ -31,7 +31,7 @@ static const _Tr_TEXT txt_input_points = {
     "نقاط ورودی",
     "入力ポイント",
     "نقاط الإدخال",
-    "其它"
+    NULL
 };
 
 

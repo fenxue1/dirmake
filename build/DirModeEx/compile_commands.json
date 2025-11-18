@@ -1,0 +1,37 @@
+[
+{
+  "directory": "E:/code/cpeject/test_mooc-clin/build/DirModeEx",
+  "command": "C:\\PROGRA~2\\mingw64\\bin\\C__~1.EXE -DQT_CONCURRENT_LIB -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_DEBUG -DQT_WIDGETS_LIB @CMakeFiles/DirModeEx.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles\\DirModeEx.dir\\main.cpp.obj -c E:\\code\\cpeject\\test_mooc-clin\\DirModeEx\\main.cpp",
+  "file": "E:/code/cpeject/test_mooc-clin/DirModeEx/main.cpp"
+},
+{
+  "directory": "E:/code/cpeject/test_mooc-clin/build/DirModeEx",
+  "command": "C:\\PROGRA~2\\mingw64\\bin\\C__~1.EXE -DQT_CONCURRENT_LIB -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_DEBUG -DQT_WIDGETS_LIB @CMakeFiles/DirModeEx.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles\\DirModeEx.dir\\mainwindow.cpp.obj -c E:\\code\\cpeject\\test_mooc-clin\\DirModeEx\\mainwindow.cpp",
+  "file": "E:/code/cpeject/test_mooc-clin/DirModeEx/mainwindow.cpp"
+},
+{
+  "directory": "E:/code/cpeject/test_mooc-clin/build/DirModeEx",
+  "command": "C:\\PROGRA~2\\mingw64\\bin\\C__~1.EXE -DQT_CONCURRENT_LIB -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_DEBUG -DQT_WIDGETS_LIB @CMakeFiles/DirModeEx.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles\\DirModeEx.dir\\text_extractor.cpp.obj -c E:\\code\\cpeject\\test_mooc-clin\\DirModeEx\\text_extractor.cpp",
+  "file": "E:/code/cpeject/test_mooc-clin/DirModeEx/text_extractor.cpp"
+},
+{
+  "directory": "E:/code/cpeject/test_mooc-clin/build/DirModeEx",
+  "command": "C:\\PROGRA~2\\mingw64\\bin\\C__~1.EXE -DQT_CONCURRENT_LIB -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_DEBUG -DQT_WIDGETS_LIB @CMakeFiles/DirModeEx.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles\\DirModeEx.dir\\csv_parser.cpp.obj -c E:\\code\\cpeject\\test_mooc-clin\\DirModeEx\\csv_parser.cpp",
+  "file": "E:/code/cpeject/test_mooc-clin/DirModeEx/csv_parser.cpp"
+},
+{
+  "directory": "E:/code/cpeject/test_mooc-clin/build/DirModeEx",
+  "command": "C:\\PROGRA~2\\mingw64\\bin\\C__~1.EXE -DQT_CONCURRENT_LIB -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_DEBUG -DQT_WIDGETS_LIB @CMakeFiles/DirModeEx.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles\\DirModeEx.dir\\csv_lang_plugin.cpp.obj -c E:\\code\\cpeject\\test_mooc-clin\\DirModeEx\\csv_lang_plugin.cpp",
+  "file": "E:/code/cpeject/test_mooc-clin/DirModeEx/csv_lang_plugin.cpp"
+},
+{
+  "directory": "E:/code/cpeject/test_mooc-clin/build/DirModeEx",
+  "command": "C:\\PROGRA~2\\mingw64\\bin\\C__~1.EXE -DQT_CONCURRENT_LIB -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_DEBUG -DQT_WIDGETS_LIB @CMakeFiles/DirModeEx.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles\\DirModeEx.dir\\diff_utils.cpp.obj -c E:\\code\\cpeject\\test_mooc-clin\\DirModeEx\\diff_utils.cpp",
+  "file": "E:/code/cpeject/test_mooc-clin/DirModeEx/diff_utils.cpp"
+},
+{
+  "directory": "E:/code/cpeject/test_mooc-clin/build/DirModeEx",
+  "command": "C:\\PROGRA~2\\mingw64\\bin\\C__~1.EXE -DQT_CONCURRENT_LIB -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_DEBUG -DQT_WIDGETS_LIB @CMakeFiles/DirModeEx.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles\\DirModeEx.dir\\language_settings.cpp.obj -c E:\\code\\cpeject\\test_mooc-clin\\DirModeEx\\language_settings.cpp",
+  "file": "E:/code/cpeject/test_mooc-clin/DirModeEx/language_settings.cpp"
+}
+]

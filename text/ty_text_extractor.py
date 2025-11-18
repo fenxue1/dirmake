@@ -458,6 +458,11 @@ def generate_c_from_csv(
     use_utf8_literal: bool = False,
     null_sentinel: bool = False,
     verbatim: bool = False,
+    literal_columns: Optional[List[str]] = None,
+    annotate_mode: Optional[str] = None,
+    per_line: int = 4,
+    source_map: Optional[Dict[str, Tuple[str, str]]] = None,
+    source_root: Optional[str] = None,
 ) -> str:
     """读取CSV并生成C结构体变量初始化代码。
     如果提供output_path则写入文件，否则返回字符串。"""
@@ -470,13 +475,35 @@ def generate_c_from_csv(
         idx_line = headers.index('line_number') if 'line_number' in headers else None
         idx_var = headers.index('variable_name') if 'variable_name' in headers else None
         lang_indices = [i for i, h in enumerate(headers) if h not in ('source_file', 'line_number', 'variable_name')]
+        lang_headers = [h for h in headers if h not in ('source_file', 'line_number', 'variable_name')]
         for row in reader:
+            var_name = row[idx_var] if idx_var is not None and idx_var < len(row) else f"var_{len(rows)}"
+            src_val = row[idx_source] if idx_source is not None and idx_source < len(row) else ''
+            line_val = row[idx_line] if idx_line is not None and idx_line < len(row) else ''
+            # 若CSV未提供来源信息且给定了映射，则按变量名回填
+            if (not src_val or not line_val) and source_map and var_name in source_map:
+                mapped_src, mapped_line = source_map[var_name]
+                src_val = src_val or (mapped_src or '')
+                line_val = line_val or (mapped_line or '')
+            # 若提供了来源根路径且当前为相对路径，转换为期望的绝对形式
+            if source_root and src_val:
+                if src_val.startswith('.\\'):
+                    # 拼接为: <root> + '\' + 去掉前缀的相对部分
+                    rel = src_val[2:]
+                    src_val = f"{source_root}\\{rel}"
+                elif src_val.startswith('./'):
+                    rel = src_val[2:]
+                    # 将相对路径中的正斜杠替换为反斜杠以保持示例风格
+                    rel = rel.replace('/', '\\')
+                    src_val = f"{source_root}\\{rel}"
             rows.append({
-                'source_file': row[idx_source] if idx_source is not None and idx_source < len(row) else '',
-                'line_number': row[idx_line] if idx_line is not None and idx_line < len(row) else '',
-                'variable_name': row[idx_var] if idx_var is not None and idx_var < len(row) else f"var_{len(rows)}",
+                'source_file': src_val,
+                'line_number': line_val,
+                'variable_name': var_name,
                 'values': row,
                 'lang_indices': lang_indices,
+                'lang_headers': lang_headers,
+                'annotate_mode': annotate_mode,
             })
 
     lines: List[str] = []
@@ -492,12 +519,18 @@ def generate_c_from_csv(
         ln = entry['line_number']
         var = entry['variable_name']
         lang_vals = []
-        for i in entry['lang_indices']:
+        for i_idx, i in enumerate(entry['lang_indices']):
             v = entry['values'][i] if i < len(entry['values']) else ''
+            col_name = entry['lang_headers'][i_idx] if i_idx < len(entry['lang_headers']) else ''
             if verbatim:
+                # 逐字输出（保留反斜杠与转义序列），仅转义双引号
                 lang_vals.append(format_c_string_verbatim(v))
             else:
-                lang_vals.append(format_c_string(v, use_utf8_literal))
+                # 若配置了按列字面量输出，则这些列使用UTF-8字面量；其余使用安全十六进制形式
+                if literal_columns and col_name in set(literal_columns):
+                    lang_vals.append(format_c_string(v, use_utf8_literal=True))
+                else:
+                    lang_vals.append(format_c_string(v, use_utf8_literal=False))
         # 若启用NULL哨兵，则将最后一个语言字段（通常为other）置为NULL，避免额外多一个初始值
         if null_sentinel and lang_vals:
             lang_vals[-1] = 'NULL'
@@ -507,9 +540,25 @@ def generate_c_from_csv(
         # 生成结构体初始化
         storage = "" if no_static else "static "
         lines.append(f"{storage}const {type_name} {var} = {{")
-        # 多行排版，每行最多放4个字段
-        per_line = 4
+        # 多行排版，每行放置的字段数量（默认4，可配置）
         for j in range(0, len(lang_vals), per_line):
+            # 若需要标注，先输出注释行
+            if 'lang_headers' in entry:
+                headers_slice = entry['lang_headers'][j:j+per_line]
+            else:
+                headers_slice = []
+            if headers_slice:
+                # 生成 names 或 indices 标注
+                # 判断是否由CLI传入 --emit-annotate 选项（经由闭包不可达，这里用环境变量开关不合适），
+                # 因此采用约定：当 headers_slice 非空时，默认输出 names 标注；如需 indices 则在调用处控制。
+                # 为了可控，这里检测一个约定变量 annotate_mode 附加在 entry 上（向后兼容不影响现有调用）。
+                annotate_mode = entry.get('annotate_mode', None)
+                if annotate_mode == 'indices':
+                    idxs = [f"[{k+1}]" for k in range(j, min(j+per_line, len(lang_vals)))]
+                    lines.append("    // " + ", ".join(idxs))
+                elif annotate_mode == 'names':
+                    pairs = [f"[{j+i+1}] {name}" for i, name in enumerate(headers_slice)]
+                    lines.append("    // " + ", ".join(pairs))
             chunk = ", ".join(lang_vals[j:j+per_line])
             lines.append(f"    {chunk},")
         # 去掉最后一行多余逗号：直接重写最后一行
@@ -585,10 +634,37 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument('--emit-null-sentinel', action='store_true', help='在结构体末尾追加NULL哨兵')
     parser.add_argument('--preserve-escapes', action='store_true', help='提取时保留原始转义，不解码')
     parser.add_argument('--emit-verbatim', action='store_true', help='CSV->C 按原始内容逐字输出（仅转义双引号）')
+    parser.add_argument('--emit-literal-cols', help='逗号分隔列名（如 text_cn,text_en），这些列以UTF-8字面量输出，其它使用\\xNN安全形式')
+    parser.add_argument('--emit-annotate', choices=['names', 'indices'], help='在结构体初始化每行值前生成标注注释（语言名或索引）')
+    parser.add_argument('--emit-per-line', type=int, help='每行输出的语言字段数量，设置为1则一行一种语言（默认4）')
+    parser.add_argument('--emit-source-map', help='可选：提供一个CSV（含 variable_name,source_file,line_number）用于按变量名回填来源注释')
+    parser.add_argument('--emit-source-root', help='可选：当来源路径为相对路径(./ 或 .\\)时，拼接为以此为前缀的绝对形式')
 
     args = parser.parse_args(argv)
     # 若请求CSV->C生成，则执行生成后返回
     if args.emit_from_csv:
+        literal_cols = None
+        if args.emit_literal_cols:
+            literal_cols = [c.strip() for c in args.emit_literal_cols.split(',') if c.strip()]
+        per_line = args.emit_per_line if args.emit_per_line and args.emit_per_line > 0 else 4
+        # 加载来源映射（如提供）
+        source_map: Optional[Dict[str, Tuple[str, str]]] = None
+        if args.emit_source_map:
+            source_map = {}
+            with open(args.emit_source_map, 'r', encoding='utf-8-sig', newline='') as mf:
+                mreader = csv.reader(mf)
+                mheaders = next(mreader)
+                midx_var = mheaders.index('variable_name') if 'variable_name' in mheaders else None
+                midx_src = mheaders.index('source_file') if 'source_file' in mheaders else None
+                midx_line = mheaders.index('line_number') if 'line_number' in mheaders else None
+                for mrow in mreader:
+                    if midx_var is None or midx_var >= len(mrow):
+                        continue
+                    mv = mrow[midx_var]
+                    ms = mrow[midx_src] if midx_src is not None and midx_src < len(mrow) else ''
+                    ml = mrow[midx_line] if midx_line is not None and midx_line < len(mrow) else ''
+                    if mv:
+                        source_map[mv] = (ms, ml)
         code = generate_c_from_csv(
             args.emit_from_csv,
             args.type,
@@ -600,6 +676,11 @@ def main(argv: Optional[List[str]] = None) -> int:
             use_utf8_literal=args.emit_utf8_literal,
             null_sentinel=args.emit_null_sentinel,
             verbatim=args.emit_verbatim,
+            literal_columns=literal_cols,
+            annotate_mode=args.emit_annotate,
+            per_line=per_line,
+            source_map=source_map,
+            source_root=args.emit_source_root,
         )
         if not args.emit_c_output:
             print(code)

@@ -1,0 +1,13 @@
+{
+  "C_Cpp.default.compileCommands": "${workspaceFolder}/../build/DirModeEx/compile_commands.json",
+  "files.associations": {
+    "qglobal.h": "cpp",
+    "type_traits": "cpp",
+    "*.tcc": "cpp",
+    "tr_text.h": "c"
+  },
+  "cmake.sourceDirectory": "${workspaceFolder}",
+  "cmake.buildDirectory": "${workspaceFolder}/../build/DirModeEx",
+  "cmake.generator": "Visual Studio 16 2019",
+  "cmake.configureOnOpen": true
+}

@@ -4,7 +4,6 @@ import os
 if __package__ in (None, ""):
     sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from gui_app.qt_compat import QtWidgets, API_NAME, QtCore
-from gui_app.ui import MainWindow
 
 
 def _write_crash_log(exc: Exception):
@@ -46,6 +45,8 @@ def main():
         if not QtWidgets:
             _message_box("启动失败", "未找到 PyQt5/PySide6 依赖，请安装后再运行。")
             sys.exit(1)
+        # 延迟导入，避免在 Qt 后端不可用时提前触发 NoneType 错误
+        from gui_app.ui import MainWindow
         print(f"使用 {API_NAME} 运行 GUI")
         # 改善 Win7 兼容性与渲染稳定性
         if QtCore:

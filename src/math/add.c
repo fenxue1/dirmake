@@ -5,7 +5,7 @@ int addv(int a, int b){
     return a + b;
 }
 
-static const _Tr_TEXT txt_input_points = {
+static const _Tr_TEXT txt_input_points_2221 = {
     "输入点",
     "Input Points",
     "Điểm nhập vào",

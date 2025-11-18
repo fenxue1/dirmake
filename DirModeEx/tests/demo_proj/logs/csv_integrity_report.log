@@ -1,0 +1,34 @@
+CSV 完整性报告
+总行数(含空行): 29
+非空行数: 28
+解析行数: 27
+重复键行数: 0
+
+键频次分布(key|count):
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_203346/src/demo.c|106|var_simple3|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_203346/src/demo.c|11|var_simple|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_203346/src/demo.c|26|var_plain|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_203346/src/demo.c|41|var_progmem|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_203346/src/demo.c|56|var_ptr|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_203346/src/demo.c|72|var_simple|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_203346/src/demo.c|89|var_simple2|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_203346/src/demo2.c|28|var_simple3|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_203346/src/demo2.c|7|var_simple|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_204345/src/demo.c|106|var_simple3|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_204345/src/demo.c|11|var_simple|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_204345/src/demo.c|26|var_plain|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_204345/src/demo.c|41|var_progmem|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_204345/src/demo.c|56|var_ptr|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_204345/src/demo.c|72|var_simple|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_204345/src/demo.c|89|var_simple2|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_204345/src/demo2.c|28|var_simple3|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/.csv_lang_backups/20251117_204345/src/demo2.c|7|var_simple|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|106|var_simple3|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|11|var_simple|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|26|var_plain|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|41|var_progmem|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|56|var_ptr|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|72|var_simple|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|89|var_simple2|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c|28|var_simple3|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c|7|var_simple|1

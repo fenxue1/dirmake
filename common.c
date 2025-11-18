@@ -25,7 +25,7 @@ void test_function() {
     tracked_free(arr, 10 * sizeof(int)); // 记得释放内存
 }
 
-static const _Tr_TEXT txt_input_points = {
+static const _Tr_TEXT txt_input_points111 = {
     "输入点",
     "Input Points",
     "Điểm nhập vào",
