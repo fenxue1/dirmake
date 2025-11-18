@@ -63,45 +63,47 @@ namespace CsvLangPlugin
         return TextExtractor::discoverLanguageColumns(root, QStringList{QStringLiteral(".h"), QStringLiteral(".hpp"), QStringLiteral(".c"), QStringLiteral(".cpp")}, alias);
     }
 
+    static QStringList parseCsvLineSimple(const QString &line)
+    {
+        QStringList out; QString cur; bool inq = false;
+        for (int i = 0; i < line.size(); ++i)
+        {
+            QChar c = line[i];
+            if (inq)
+            {
+                if (c == QLatin1Char('"'))
+                {
+                    if (i + 1 < line.size() && line[i + 1] == QLatin1Char('"'))
+                    { cur.append(QLatin1Char('"')); ++i; }
+                    else { inq = false; }
+                }
+                else if (c == QLatin1Char('\\') && i + 1 < line.size() && line[i + 1] == QLatin1Char('"'))
+                { cur.append(QLatin1Char('"')); ++i; }
+                else { cur.append(c); }
+            }
+            else
+            {
+                if (c == QLatin1Char('"')) { inq = true; }
+                else if (c == QLatin1Char(',')) { out << cur; cur.clear(); }
+                else { cur.append(c); }
+            }
+        }
+        out << cur; return out;
+    }
+
     static QString replaceInitializerBodyPreservingFormat(const QString &body,
                                                           const QStringList &structLangs,
                                                           const QStringList &csvValues,
                                                           const QMap<QString, int> &colMap)
     {
-        // Tokenize literals and NULL while preserving separators
-        QRegularExpression reTok(QStringLiteral(R"("([^"\\]|\\.)*"|NULL)"), QRegularExpression::DotMatchesEverythingOption);
-        QString out = body;
-        QList<QPair<int, int>> spans; // start,end of tokens in out
-        auto it = reTok.globalMatch(out);
-        while (it.hasNext())
-        {
-            auto m = it.next();
-            spans << qMakePair(m.capturedStart(), m.capturedEnd());
-        }
-        // Map struct language index to csvValues
-        for (int i = 0; i < structLangs.size() && i < spans.size(); ++i)
-        {
-            QString lang = structLangs[i];
-            if (lang.startsWith(QLatin1String("text_")))
-                lang = lang.mid(5);
-            if (!colMap.contains(lang))
-                continue;
-            int csvIdx = colMap.value(lang);
-            if (csvIdx < 0 || csvIdx >= csvValues.size())
-                continue;
-            QString newLit = QStringLiteral("\"%1\"").arg(csvValues[csvIdx]);
-            int start = spans[i].first;
-            int end = spans[i].second;
-            out.replace(start, end - start, newLit);
-            int delta = newLit.size() - (end - start);
-            // adjust subsequent spans
-            for (int k = i + 1; k < spans.size(); ++k)
-            {
-                spans[k].first += delta;
-                spans[k].second += delta;
-            }
-        }
-        return out;
+        Q_UNUSED(structLangs);
+        Q_UNUSED(colMap);
+        QStringList items;
+        items.reserve(csvValues.size() + 1);
+        for (const QString &v : csvValues)
+            items << QStringLiteral("\"%1\"").arg(v);
+        items << QStringLiteral("NULL");
+        return items.join(QStringLiteral(", "));
     }
 
     static QMutex gFileWriteMutex;
@@ -112,13 +114,15 @@ namespace CsvLangPlugin
     {
         CsvProcessStats stats;
         QString logPath = config.contains(QStringLiteral("log_path"))
-                              ? config.value(QStringLiteral("log_path")).toString()
-                              : ensureLogsDir(projectRoot);
+                                  ? config.value(QStringLiteral("log_path")).toString()
+                                  : ensureLogsDir(projectRoot);
         QFile logF(logPath);
         logF.open(QIODevice::Append);
         QTextStream log(&logF);
         log.setCodec("UTF-8");
         bool disableBackups = config.value(QStringLiteral("disable_backups")).toBool();
+        QString sandboxDir = config.value(QStringLiteral("sandbox_output_dir")).toString();
+        bool useSandbox = !sandboxDir.isEmpty();
         QString sessDir;
         if (!disableBackups)
         {
@@ -127,9 +131,11 @@ namespace CsvLangPlugin
                           : backupsSessionDir(projectRoot);
             if (!sessDir.isEmpty()) QDir().mkpath(sessDir);
         }
-        QString diffPath = config.contains(QStringLiteral("diff_path"))
-                               ? config.value(QStringLiteral("diff_path")).toString()
-                               : QDir(projectRoot).absoluteFilePath(QStringLiteral("logs/csv_lang_plugin.diff"));
+            QString diffPath = config.contains(QStringLiteral("diff_path"))
+                                   ? config.value(QStringLiteral("diff_path")).toString()
+                                   : QDir(projectRoot).absoluteFilePath(QStringLiteral("logs/csv_lang_plugin.diff"));
+            stats.logPath = logPath;
+            stats.diffPath = diffPath;
         QFile diffF(diffPath);
         diffF.open(QIODevice::WriteOnly | QIODevice::Truncate);
         QTextStream diffOut(&diffF);
@@ -193,6 +199,35 @@ namespace CsvLangPlugin
         QMap<QString, int> colMap;
         for (auto it = mapObj.begin(); it != mapObj.end(); ++it)
             colMap[it.key()] = it.value().toInt();
+
+        if (colMap.isEmpty())
+        {
+            QString chosenCodec; bool bom = false;
+            QString csvText = readFileAutoCodec(csvPath, chosenCodec, bom);
+            QStringList lines = csvText.split(QLatin1Char('\n'));
+            QString header;
+            for (const QString &ln : lines)
+            {
+                QString raw = ln;
+                if (!raw.isEmpty() && raw.endsWith(QLatin1Char('\r'))) raw.chop(1);
+                if (raw.trimmed().isEmpty()) continue;
+                header = raw; break;
+            }
+            if (!header.isEmpty())
+            {
+                if (header[0].unicode() == 0xFEFF) header.remove(0, 1);
+                QStringList hdrs = parseCsvLineSimple(header);
+                if (hdrs.size() > 3)
+                {
+                    for (int i = 3; i < hdrs.size(); ++i)
+                    {
+                        QString h = hdrs[i].trimmed();
+                        QString shortName = h.startsWith(QLatin1String("text_")) ? h.mid(5) : h;
+                        colMap[shortName] = i - 3; // index relative to CsvRow.values
+                    }
+                }
+            }
+        }
 
         for (const CsvRow &r : rows)
         {
@@ -352,7 +387,25 @@ namespace CsvLangPlugin
             }
             if (!dryRun)
             {
-                if (f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                if (useSandbox)
+                {
+                    QString targetPath = QDir(sandboxDir).absoluteFilePath(rel);
+                    QDir().mkpath(QFileInfo(targetPath).dir().absolutePath());
+                    QFile tf(targetPath);
+                    if (tf.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                    {
+                        if (bom && codec == QStringLiteral("UTF-8"))
+                            tf.write("\xEF\xBB\xBF");
+                        QTextStream wr(&tf);
+                        wr.setCodec(codec.toUtf8().constData());
+                        wr << after;
+                        tf.close();
+                        stats.successFiles << targetPath;
+                        stats.successCount++;
+                        log << QStringLiteral("  写入沙箱: ") << QDir(projectRoot).relativeFilePath(targetPath) << QStringLiteral("\n");
+                    }
+                }
+                else if (f.open(QIODevice::WriteOnly | QIODevice::Truncate))
                 {
                     // 保留原文件编码与 UTF-8 BOM 状态
                     if (bom && codec == QStringLiteral("UTF-8"))
@@ -380,7 +433,7 @@ namespace CsvLangPlugin
         diffF.close();
         stats.logPath = logPath;
         stats.diffPath = diffPath;
-        stats.outputDir = sessDir;
+        stats.outputDir = useSandbox ? sandboxDir : sessDir;
         return stats;
     }
 

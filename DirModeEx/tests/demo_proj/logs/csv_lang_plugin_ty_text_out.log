@@ -1,0 +1,318 @@
+2025-11-18 21:32:42 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行13 非空12 解析11 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+成功:11 跳过:0 失败:0
+2025-11-18 21:32:42 END
+
+2025-11-18 21:36:13 BEGIN csv import root=E:\code\cpeject\test_mooc-clin\DirModeEx\tests\demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行13 非空12 解析11 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:0 跳过:11 失败:0
+2025-11-18 21:36:13 END
+
+2025-11-18 21:37:04 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行13 非空12 解析11 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:0 跳过:11 失败:0
+2025-11-18 21:37:04 END
+
+2025-11-18 21:56:57 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行12 非空11 解析10 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  写入沙箱: csv_import_sandbox/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:1 跳过:9 失败:0
+2025-11-18 21:56:57 END
+
+2025-11-18 22:13:04 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行10 非空9 解析8 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  写入沙箱: csv_import_sandbox/src/demo.c
+  写入沙箱: csv_import_sandbox/src/demo.c
+  写入沙箱: csv_import_sandbox/src/demo.c
+  写入沙箱: csv_import_sandbox/src/demo.c
+  写入沙箱: csv_import_sandbox/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  写入沙箱: csv_import_sandbox/src/demo2.c
+成功:6 跳过:2 失败:0
+2025-11-18 22:13:04 END
+
+2025-11-18 22:16:05 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行10 非空9 解析8 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  修改: src/demo2.c
+成功:6 跳过:2 失败:0
+2025-11-18 22:16:05 END
+
+2025-11-18 22:16:38 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行10 非空9 解析8 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:0 跳过:8 失败:0
+2025-11-18 22:16:38 END
+
+2025-11-18 22:20:49 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行10 非空9 解析8 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:0 跳过:8 失败:0
+2025-11-18 22:20:49 END
+
+2025-11-18 22:22:57 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行10 非空9 解析8 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:4 跳过:4 失败:0
+2025-11-18 22:22:57 END
+
+2025-11-18 22:47:21 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行14 非空13 解析12 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:8 跳过:4 失败:0
+2025-11-18 22:47:21 END
+
+2025-11-18 22:51:08 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行14 非空13 解析12 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:8 跳过:4 失败:0
+2025-11-18 22:51:08 END
+
+2025-11-18 22:53:24 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行14 非空13 解析12 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:0 跳过:12 失败:0
+2025-11-18 22:53:24 END
+
+2025-11-18 23:04:25 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行15 非空14 解析13 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+成功:13 跳过:0 失败:0
+2025-11-18 23:04:25 END
+
+2025-11-18 23:09:15 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行15 非空14 解析13 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  修改: src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:1 跳过:12 失败:0
+2025-11-18 23:09:15 END
+
+2025-11-18 23:13:30 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行15 非空14 解析13 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:9 跳过:4 失败:0
+2025-11-18 23:13:30 END
+
+2025-11-18 23:23:54 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行14 非空13 解析12 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:1 跳过:11 失败:0
+2025-11-18 23:23:54 END
+
+2025-11-18 23:30:12 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行14 非空13 解析12 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:0 跳过:12 失败:0
+2025-11-18 23:30:12 END
+
+2025-11-18 23:37:09 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行14 非空13 解析12 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:0 跳过:12 失败:0
+2025-11-18 23:37:09 END
+
+2025-11-18 23:46:29 BEGIN csv import root=E:\code\cpeject\test_mooc-clin\DirModeEx\tests\demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行14 非空13 解析12 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  修改: src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+  跳过(无变更): E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+成功:6 跳过:6 失败:0
+2025-11-18 23:46:29 END
+
+2025-11-18 23:49:15 BEGIN csv import root=E:\code\cpeject\test_mooc-clin\DirModeEx\tests\demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行14 非空13 解析12 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+成功:12 跳过:0 失败:0
+2025-11-18 23:49:15 END
+

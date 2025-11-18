@@ -372,8 +372,34 @@ namespace TextExtractor
         return out.join(QLatin1Char('\n'));
     }
 
-    QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFile, const QString &typeName, bool preserveEscapes)
-    {
+QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFile, const QString &typeName, bool preserveEscapes)
+{
+        QString ncAll = stripComments(text);
+        QRegularExpression reFull(QStringLiteral("(?:(?:static|const)\s+)*(?:struct\s+)?%1(?:\s+\w+)*\s*(?:\*+)?\s+([A-Za-z_]\w*)\s*(?:\[[^\]]*\])?(?:\s+\w+)*\s*=\s*(?:&\s*\([^)]*\)\s*)?\{(.*?)\};").arg(QRegularExpression::escape(typeName)), QRegularExpression::DotMatchesEverythingOption);
+        QRegularExpression reStringsFull(QStringLiteral("\"(?:\\.|[^\"\\])*\""));
+        auto itFull = reFull.globalMatch(ncAll);
+        QList<ExtractedBlock> fast;
+        while (itFull.hasNext())
+        {
+            auto m = itFull.next();
+            QString var = m.captured(1);
+            QString inner = m.captured(2);
+            int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\s,])(NULL|nullptr)(?:[\s,]|$)")));
+            QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
+            QStringList strs;
+            auto sit = reStringsFull.globalMatch(innerFor);
+            while (sit.hasNext())
+            {
+                auto sm = sit.next();
+                QString decoded = decodeCEscapedString(sm.captured(0), preserveEscapes);
+                strs << decoded;
+            }
+            int startPos = m.capturedStart(0);
+            int finalLine = ncAll.left(startPos).count(QLatin1Char('\n')) + 1;
+            fast.append({var, strs, sourceFile, finalLine});
+        }
+        if (!fast.isEmpty())
+            return fast;
         QList<ExtractedBlock> results;
         QStringList lines = text.split(QLatin1Char('\n'));
         // 允许类型名与变量名之间的附加限定词（如 PROGMEM），以及指针/数组声明
@@ -397,6 +423,29 @@ namespace TextExtractor
             bool started = line.contains(QLatin1Char('{'));
             int braceDepth = started ? (line.count(QLatin1Char('{')) - line.count(QLatin1Char('}'))) : 0;
             int bodyStartLine = started ? declLine : 0;
+            if (started && braceDepth == 0 && line.contains(QStringLiteral("};")))
+            {
+                QString nc = stripComments(line);
+                QRegularExpression reInner(QStringLiteral("\\{(.*)\\};"), QRegularExpression::DotMatchesEverythingOption);
+                auto mi = reInner.match(nc);
+                QStringList strs;
+                if (mi.hasMatch())
+                {
+                    QString inner = mi.captured(1);
+                    int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\\s,])(NULL|nullptr)(?:[\\s,]|$)")));
+                    QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
+                    auto it2 = reStrings.globalMatch(innerFor);
+                    while (it2.hasNext())
+                    {
+                        auto sm = it2.next();
+                        QString decoded = decodeCEscapedString(sm.captured(0), preserveEscapes);
+                        strs << decoded;
+                    }
+                }
+                int finalLine = declLine;
+                results.append({var, strs, sourceFile, finalLine});
+                continue;
+            }
             while (i < lines.size())
             {
                 buf << lines[i];
@@ -590,12 +639,25 @@ namespace TextExtractor
         return out;
     }
 
-    bool writeCsv(const QString &outputPath,
-                  const QList<ExtractedBlock> &rows,
-                  const QStringList &langColumns,
-                  const QStringList &literalColumns,
-                  bool replaceAsciiCommaWithCn)
-    {
+bool writeCsv(const QString &outputPath,
+              const QList<ExtractedBlock> &rows,
+              const QStringList &langColumns,
+              const QStringList &literalColumns,
+              bool replaceAsciiCommaWithCn)
+{
+        auto isLiteralCol = [&](const QString &name) -> bool {
+            QString n = name;
+            QStringList cands;
+            cands << n;
+            if (n.startsWith(QLatin1String("text_")))
+                cands << n.mid(5);
+            else
+                cands << (QStringLiteral("text_") + n);
+            for (const QString &c : cands)
+                if (literalColumns.contains(c))
+                    return true;
+            return false;
+        };
         auto writeChunk = [&](const QString &path, int startIdx, int endIdx) -> bool {
             QFile f(path);
             if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate))
@@ -656,11 +718,7 @@ namespace TextExtractor
                     {
                         v.replace(QLatin1Char(','), QChar(0xFF0C));
                     }
-                    const QString lang = langColumns.value(i);
-                    if (literalColumns.contains(lang))
-                        cols << csvEscape(v);
-                    else
-                        cols << csvEscape(toUtf8Hex(v));
+                    cols << csvEscape(v);
                 }
                 ts << cols.join(QLatin1Char(',')) << QStringLiteral("\n");
             }
@@ -1012,7 +1070,7 @@ QString generateCFromCsv(const QString &csvPath,
     QStringList lines;
     lines << QStringLiteral("/* Generated from CSV by DirModeEx */")
               << QStringLiteral("#include \"include/tr_text.h\"")
-              << (nullSentinel ? QStringLiteral("#include <stddef.h>") : QString())
+              << QStringLiteral("#include <stddef.h>")
               << QString();
     QStringList decls;
     QStringList regs;
@@ -1108,8 +1166,8 @@ QString generateCFromCsv(const QString &csvPath,
                 }
                 else
                 {
-                    // 其它列：统一输出为十六进制转义
-                    vals << fmtHex(v2);
+                    // 默认：统一输出为 UTF-8 字面字符串
+                    vals << fmtUtf8(v2);
                 }
             }
             // 生成格式：一种语言一行，每行前带索引或名称注释
@@ -1130,20 +1188,17 @@ QString generateCFromCsv(const QString &csvPath,
                 }
                 lines << QStringLiteral("    %1,").arg(vals[i]);
             }
-            // 末尾NULL哨兵：单独一行注释 + 值
-            if (nullSentinel)
+            // 末尾NULL哨兵：单独一行注释 + 值（强制添加）
+            int sentinelIndex = langCount + 1;
+            if (annotateMode == QStringLiteral("indices"))
             {
-                int sentinelIndex = langCount + 1;
-                if (annotateMode == QStringLiteral("indices"))
-                {
-                    lines << QStringLiteral("    // [%1]").arg(sentinelIndex);
-                }
-                else if (annotateMode == QStringLiteral("names"))
-                {
-                    lines << QStringLiteral("    // [%1] %2").arg(sentinelIndex).arg(QStringLiteral("NULL"));
-                }
-                lines << QStringLiteral("    %1,").arg(QStringLiteral("NULL"));
+                lines << QStringLiteral("    // [%1]").arg(sentinelIndex);
             }
+            else if (annotateMode == QStringLiteral("names"))
+            {
+                lines << QStringLiteral("    // [%1] %2").arg(sentinelIndex).arg(QStringLiteral("NULL"));
+            }
+            lines << QStringLiteral("    %1,").arg(QStringLiteral("NULL"));
             // 去掉最后一行的逗号
             if (!vals.isEmpty())
             {

@@ -55,6 +55,7 @@
 #include "csv_lang_plugin.h"
 #include "csv_parser.h"
 #include <QMap>
+#include <memory>
 
 namespace {
 struct ExtractMapFn {
@@ -812,8 +813,10 @@ void MainWindow::onExtractRun()
     while (it.hasNext())
     {
         const QString f = it.next();
-        if (matchExt(QFileInfo(f).fileName()))
-            files << f;
+        if (f.contains(QStringLiteral("/csv_import_sandbox/")) || f.contains(QStringLiteral("\\csv_import_sandbox\\")) ||
+            f.contains(QStringLiteral("/.csv_lang_backups/")) || f.contains(QStringLiteral("\\.csv_lang_backups\\")))
+            continue;
+        if (matchExt(QFileInfo(f).fileName())) files << f;
     }
     if (files.isEmpty())
     {
@@ -903,6 +906,9 @@ void MainWindow::onExtractChinese()
     while (it.hasNext())
     {
         const QString f = it.next();
+        if (f.contains(QStringLiteral("/csv_import_sandbox/")) || f.contains(QStringLiteral("\\csv_import_sandbox\\")) ||
+            f.contains(QStringLiteral("/.csv_lang_backups/")) || f.contains(QStringLiteral("\\.csv_lang_backups\\")))
+            continue;
         if (matchExt(QFileInfo(f).fileName())) files << f;
     }
     if (files.isEmpty())
@@ -1130,19 +1136,22 @@ void MainWindow::onRunCsvImport()
         if (!f.isEmpty())
             csvFiles << f;
     }
-    int totalSuccess = 0;
-    int totalSkip = 0;
-    int totalFail = 0;
-    QString lastLogPath;
-    QString lastDiffPath;
-    QString lastOutputDir;
-    QStringList allSuccessFiles;
-    QStringList allSkippedFiles;
-    QStringList allFailedFiles;
+    struct ImportTotals {
+        int totalSuccess{0};
+        int totalSkip{0};
+        int totalFail{0};
+        QString lastLogPath;
+        QString lastDiffPath;
+        QString lastOutputDir;
+        QStringList allSuccessFiles;
+        QStringList allSkippedFiles;
+        QStringList allFailedFiles;
+    };
+    auto totals = std::make_shared<ImportTotals>();
 
     m_csvRunBtn->setEnabled(false);
     auto watcher = new QFutureWatcher<void>(this);
-    QFuture<void> fut = QtConcurrent::run([=]() {
+    QFuture<void> fut = QtConcurrent::run([this, totals, root, csvFiles, cfg]() {
         for (int i = 0; i < csvFiles.size(); ++i)
         {
             QFileInfo fi(csvFiles.at(i));
@@ -1161,36 +1170,33 @@ void MainWindow::onRunCsvImport()
             }
 
             auto stats = CsvLangPlugin::applyTranslations(root, csvFiles.at(i), cfgEach);
-            totalSuccess += stats.successCount;
-            totalSkip += stats.skipCount;
-            totalFail += stats.failCount;
-            lastLogPath = stats.logPath;
-            lastDiffPath = stats.diffPath;
-            lastOutputDir = stats.outputDir;
-            allSuccessFiles.append(stats.successFiles);
-            allSkippedFiles.append(stats.skippedFiles);
-            allFailedFiles.append(stats.failedFiles);
+            totals->totalSuccess += stats.successCount;
+            totals->totalSkip += stats.skipCount;
+            totals->totalFail += stats.failCount;
+            totals->lastLogPath = stats.logPath;
+            totals->lastDiffPath = stats.diffPath;
+            totals->lastOutputDir = stats.outputDir;
+            totals->allSuccessFiles.append(stats.successFiles);
+            totals->allSkippedFiles.append(stats.skippedFiles);
+            totals->allFailedFiles.append(stats.failedFiles);
 
             int prog = 5 + ((i + 1) * 90) / qMax(1, csvFiles.size());
             QMetaObject::invokeMethod(m_csvProgress, "setValue", Qt::QueuedConnection, Q_ARG(int, qMin(95, prog)));
         }
     });
-    connect(watcher, &QFutureWatcher<void>::finished, this, [=]() {
+    connect(watcher, &QFutureWatcher<void>::finished, this, [this, totals, csvFiles, watcher]() {
         m_csvProgress->setValue(100);
         QString report = QString("CSV文件数: %1\n成功: %2\n跳过: %3\n失败: %4\n日志: %5\n差异: %6\n备份: %7")
                              .arg(csvFiles.size())
-                             .arg(totalSuccess)
-                             .arg(totalSkip)
-                             .arg(totalFail)
-                             .arg(lastLogPath)
-                             .arg(lastDiffPath)
-                             .arg(lastOutputDir);
+                             .arg(totals->totalSuccess)
+                             .arg(totals->totalSkip)
+                             .arg(totals->totalFail)
+                             .arg(totals->lastLogPath)
+                             .arg(totals->lastDiffPath)
+                             .arg(totals->lastOutputDir);
         m_csvReportView->setPlainText(report);
-        log(QStringLiteral("CSV导入完成：文件 %1 成功 %2 跳过 %3 失败 %4").arg(csvFiles.size()).arg(totalSuccess).arg(totalSkip).arg(totalFail));
-        if (!lastOutputDir.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(lastOutputDir));
-        if (!csvFiles.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(csvFiles.first()).dir().absolutePath()));
+        log(QStringLiteral("CSV导入完成：文件 %1 成功 %2 跳过 %3 失败 %4").arg(csvFiles.size()).arg(totals->totalSuccess).arg(totals->totalSkip).arg(totals->totalFail));
+        Q_UNUSED(csvFiles);
         m_csvRunBtn->setEnabled(true);
         watcher->deleteLater();
     });
