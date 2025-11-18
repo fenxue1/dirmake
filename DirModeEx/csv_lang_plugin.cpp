@@ -384,13 +384,6 @@ namespace CsvLangPlugin
             QString before = text;
             QString body = text.mid(bestStart, bestEnd - bestStart);
             QString newBody = replaceInitializerBodyPreservingFormat(body, structLangs, r.values, colMap);
-            if (newBody == body)
-            {
-                stats.skippedFiles << absPath;
-                stats.skipCount++;
-                log << QStringLiteral("  跳过(无变更): ") << absPath << QStringLiteral("\n");
-                continue;
-            }
             QString after = text;
             after.replace(bestStart, bestEnd - bestStart, newBody);
 
