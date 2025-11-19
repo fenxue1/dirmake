@@ -405,16 +405,32 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
         // 允许类型名与变量名之间的附加限定词（如 PROGMEM），以及指针/数组声明
         QRegularExpression reStart(QStringLiteral("(?:(?:static|const)\\s+)*(?:struct\\s+)?%1(?:\\s+\\w+)*\\s*(?:\\*+)?\\s+([A-Za-z_]\\w*)\\s*(?:\\[[^\\]]*\\])?(?:\\s+\\w+)*\\s*=\\s*").arg(QRegularExpression::escape(typeName)));
         QRegularExpression reStrings(QStringLiteral("\"(?:\\\\.|[^\"\\\\])*\""));
-        int i = 0;
-        while (i < lines.size())
+    int i = 0;
+    bool inBlockComment = false;
+    while (i < lines.size())
+    {
+        QString line = lines[i];
+        QString ltrim = line.trimmed();
+        if (ltrim.contains(QLatin1String("/*")) && !ltrim.contains(QLatin1String("*/")))
+            inBlockComment = true;
+        bool lineStartsComment = ltrim.startsWith(QLatin1String("//")) || inBlockComment;
+        if (inBlockComment && ltrim.contains(QLatin1String("*/")))
         {
-            QString line = lines[i];
-            auto m = reStart.match(line);
-            if (!m.hasMatch())
-            {
-                i++;
-                continue;
-            }
+            inBlockComment = false;
+            i++;
+            continue;
+        }
+        if (lineStartsComment)
+        {
+            i++;
+            continue;
+        }
+        auto m = reStart.match(line);
+        if (!m.hasMatch())
+        {
+            i++;
+            continue;
+        }
             QString var = m.captured(1);
             int declLine = i + 1;
             QStringList buf;
@@ -423,29 +439,29 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
             bool started = line.contains(QLatin1Char('{'));
             int braceDepth = started ? (line.count(QLatin1Char('{')) - line.count(QLatin1Char('}'))) : 0;
             int bodyStartLine = started ? declLine : 0;
-            if (started && braceDepth == 0 && line.contains(QStringLiteral("};")))
+        if (started && braceDepth == 0 && line.contains(QStringLiteral("};")))
+        {
+            QString nc = stripComments(line);
+            QRegularExpression reInner(QStringLiteral("\\{(.*)\\};"), QRegularExpression::DotMatchesEverythingOption);
+            auto mi = reInner.match(nc);
+            QStringList strs;
+            if (mi.hasMatch())
             {
-                QString nc = stripComments(line);
-                QRegularExpression reInner(QStringLiteral("\\{(.*)\\};"), QRegularExpression::DotMatchesEverythingOption);
-                auto mi = reInner.match(nc);
-                QStringList strs;
-                if (mi.hasMatch())
+                QString inner = mi.captured(1);
+                int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\\s,])(NULL|nullptr)(?:[\\s,]|$)")));
+                QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
+                auto it2 = reStrings.globalMatch(innerFor);
+                while (it2.hasNext())
                 {
-                    QString inner = mi.captured(1);
-                    int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\\s,])(NULL|nullptr)(?:[\\s,]|$)")));
-                    QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
-                    auto it2 = reStrings.globalMatch(innerFor);
-                    while (it2.hasNext())
-                    {
-                        auto sm = it2.next();
-                        QString decoded = decodeCEscapedString(sm.captured(0), preserveEscapes);
-                        strs << decoded;
-                    }
+                    auto sm = it2.next();
+                    QString decoded = decodeCEscapedString(sm.captured(0), preserveEscapes);
+                    strs << decoded;
                 }
                 int finalLine = declLine;
                 results.append({var, strs, sourceFile, finalLine});
-                continue;
             }
+            continue;
+        }
             while (i < lines.size())
             {
                 buf << lines[i];
@@ -468,24 +484,24 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
             QRegularExpression reInner(QStringLiteral("\\{(.*)\\};"), QRegularExpression::DotMatchesEverythingOption);
             auto mi = reInner.match(nc);
             QStringList strs;
-            if (mi.hasMatch())
+        if (mi.hasMatch())
+        {
+            QString inner = mi.captured(1);
+            int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\\s,])(NULL|nullptr)(?:[\\s,]|$)")));
+            QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
+            auto it = reStrings.globalMatch(innerFor);
+            while (it.hasNext())
             {
-                QString inner = mi.captured(1);
-                int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\\s,])(NULL|nullptr)(?:[\\s,]|$)")));
-                QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
-                auto it = reStrings.globalMatch(innerFor);
-                while (it.hasNext())
-                {
-                    auto sm = it.next();
-                    QString decoded = decodeCEscapedString(sm.captured(0), preserveEscapes);
-                    strs << decoded;
-                }
+                auto sm = it.next();
+                QString decoded = decodeCEscapedString(sm.captured(0), preserveEscapes);
+                strs << decoded;
             }
             int finalLine = (bodyStartLine > 0) ? bodyStartLine : declLine;
             results.append({var, strs, sourceFile, finalLine});
         }
-        return results;
     }
+    return results;
+}
 
     QList<ExtractedBlock> scanDirectory(const QString &root, const QStringList &extensions, const QString &mode, const QMap<QString, QString> &defines, const QString &typeName, bool preserveEscapes)
     {

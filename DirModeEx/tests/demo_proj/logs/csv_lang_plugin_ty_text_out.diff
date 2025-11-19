@@ -1,109 +1,20 @@
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
-@@ -11,4 +11,4 @@
--const  _Tr_TEXT var_simple = {"示例2",
-+const  _Tr_TEXT var_simple = {"示例",
--      "Example",
-+      "Examp\nle",
--      "Example2",
-+      "Example",
--      "Example2",
-+      "Example",
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
-@@ -11,6 +11,6 @@
--const  _Tr_TEXT var_simple = {"示例",
-+const  _Tr_TEXT var_simple = {"示例2",
--      "Examp\nle",
-+      "Exa\nmple2",
--      "Example",
-+      "Example2",
--      "Example",
-+      "Example2",
--      "Example",
-+      "Example2",
--      "Example", NULL}; 
-+      "Example2", NULL}; 
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
-@@ -11,2 +11,2 @@
--const  _Tr_TEXT var_simple = {"示例2",
-+const  _Tr_TEXT var_simple = {"示例",
--      "Exa\nmple2",
-+      "Exa\nmple",
-@@ -18,0 +18,0 @@
--      "Example2", NULL}; 
-+      "Example", NULL}; 
- const  _Tr_TEXT var_simple2 = {"示例",
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
-@@ -11,2 +11,2 @@
--const  _Tr_TEXT var_simple = {"示例",
-+const  _Tr_TEXT var_simple = {"示例2",
--      "Exa\nmple",
-+      "Example",
-@@ -17,0 +17,0 @@
--      "Example2",
-+      "Example",
-       "Example", NULL}; 
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
-@@ -23,0 +23,0 @@
--      "Example",
-+      "Example2",
-       "Example", NULL};
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
-@@ -17,2 +17,2 @@
--const  _Tr_TEXT var_simple2 = {"示例",
-+const  _Tr_TEXT var_simple2 = {"示例2",
--      "Example",
-+      "Example2",
-@@ -24,0 +24,0 @@
--      "Example", NULL};
-+      "Example2", NULL};
- const  _Tr_TEXT var_simple3 = {"示例", "Exa\nmple", "Example2", "Example2", "Example2", "Example", NULL}; 
---- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
-+++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
-@@ -17,2 +17,2 @@
--const  _Tr_TEXT var_simple2 = {"示例2",
-+const  _Tr_TEXT var_simple2 = {"示例",
--      "Example2",
-+      "Example",
-@@ -21,2 +21,2 @@
--      "Example2",
-+      "Example",
--      "Example2", NULL};
-+      "Example", NULL};
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
-@@ -8,5 +8,5 @@
--      "Example2",
-+      "Example",
--      "\x5C\x78\x34\x35\x5C\x78\x37\x38\x5C\x78\x36\x31\x5C\x78\x36\x44\x5C\x78\x37\x30\x5C\x78\x36\x43\x5C\x78\x36\x35\x5C\x78\x33\x32",
-+      "\x45\x78\x61\x6D\x70\x6C\x65",
--      "\x5C\x78\x34\x35\x5C\x78\x37\x38\x5C\x78\x36\x31\x5C\x78\x36\x44\x5C\x78\x37\x30\x5C\x78\x36\x43\x5C\x78\x36\x35\x5C\x78\x33\x32",
-+      "Example",
--      "\x45\x78\x61\x6D\x70\x6C\x65\x32",
-+      "Example",
--      "Example2", NULL}; 
-+      "Example", NULL}; 
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
-@@ -8,5 +8,5 @@
--      "Example",
-+      "Exam\nple2",
--      "\x45\x78\x61\x6D\x70\x6C\x65",
-+      "\x5C\x78\x34\x35\x5C\x78\x37\x38\x5C\x78\x36\x31\x5C\x78\x36\x44\x5C\x78\x37\x30\x5C\x78\x36\x43\x5C\x78\x36\x35\x5C\x78\x33\x32",
--      "Example",
-+      "\x5C\x78\x34\x35\x5C\x78\x37\x38\x5C\x78\x36\x31\x5C\x78\x36\x44\x5C\x78\x37\x30\x5C\x78\x36\x43\x5C\x78\x36\x35\x5C\x78\x33\x32",
--      "Example",
-+      "\x45\x78\x61\x6D\x70\x6C\x65\x32",
--      "Example", NULL}; 
-+      "Example2", NULL}; 
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
-@@ -10,0 +10,0 @@
--      "Exam\nple2",
-+      "Example2",
-       "\x5C\x78\x34\x35\x5C\x78\x37\x38\x5C\x78\x36\x31\x5C\x78\x36\x44\x5C\x78\x37\x30\x5C\x78\x36\x43\x5C\x78\x36\x35\x5C\x78\x33\x32",
+--- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
++++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c

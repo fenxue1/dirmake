@@ -58,6 +58,18 @@ namespace CsvLangPlugin
         return prevDefine > lineStart;
     }
 
+    static bool inCommentContext(const QString &text, int pos)
+    {
+        int lineStart = text.lastIndexOf(QLatin1Char('\n'), pos);
+        if (lineStart < 0) lineStart = 0;
+        int slc = text.lastIndexOf(QStringLiteral("//"), pos);
+        if (slc >= 0 && slc > lineStart)
+            return true;
+        int open = text.lastIndexOf(QStringLiteral("/*"), pos);
+        int close = text.lastIndexOf(QStringLiteral("*/"), pos);
+        return open >= 0 && open > close;
+    }
+
     static QStringList discoverLangOrder(const QString &root, const QString &alias)
     {
         return TextExtractor::discoverLanguageColumns(root, QStringList{QStringLiteral(".h"), QStringLiteral(".hpp"), QStringLiteral(".c"), QStringLiteral(".cpp")}, alias);
@@ -114,24 +126,12 @@ namespace CsvLangPlugin
     {
         Q_UNUSED(structLangs);
         Q_UNUSED(colMap);
-        QString out;
-        if (!csvValues.isEmpty())
-        {
-            out = QStringLiteral("\"%1\",").arg(cEscape(csvValues.first()));
-            for (int i = 1; i < csvValues.size(); ++i)
-            {
-                QString esc = cEscape(csvValues.at(i));
-                if (i == csvValues.size() - 1)
-                    out += QStringLiteral("\n      \"%1\", NULL").arg(esc);
-                else
-                    out += QStringLiteral("\n      \"%1\",").arg(esc);
-            }
-        }
-        else
-        {
-            out = QStringLiteral("NULL");
-        }
-        return out;
+        QStringList items;
+        items.reserve(csvValues.size() + 1);
+        for (const QString &v : csvValues)
+            items << QStringLiteral("\"%1\"").arg(cEscape(v));
+        items << QStringLiteral("NULL");
+        return items.join(QStringLiteral(", "));
     }
 
     static QMutex gFileWriteMutex;
@@ -221,7 +221,7 @@ namespace CsvLangPlugin
         bool dryRun = config.value(QStringLiteral("dry_run")).toBool();
         bool strictLineOnly = config.value(QStringLiteral("strict_line_only")).toBool();
         int lineWindow = config.value(QStringLiteral("line_window")).toInt();
-        bool ignoreVarName = config.value(QStringLiteral("ignore_variable_name")).toBool();
+        bool ignoreVarNameDefault = config.value(QStringLiteral("ignore_variable_name")).toBool();
         if (lineWindow <= 0) lineWindow = 50;
         QJsonObject mapObj = config.value(QStringLiteral("column_mapping")).toObject();
         QMap<QString, int> colMap;
@@ -296,6 +296,9 @@ namespace CsvLangPlugin
             // - optional: array declarator [] after variable name
             // - captures alias/type in group(1), initializer body in group(2)
             QString pattern;
+            bool ignoreVarName = ignoreVarNameDefault;
+            if (!r.variableName.isEmpty())
+                ignoreVarName = false;
             if (ignoreVarName)
             {
                 // 支持复合字面量地址取值：=&(type){...}
@@ -323,10 +326,15 @@ namespace CsvLangPlugin
             while (it.hasNext())
             {
                 auto m = it.next();
+                int declPos = m.capturedStart(0);
                 int s = m.capturedStart(2);
                 int e = m.capturedEnd(2);
-                int lineAt = text.left(s).count(QLatin1Char('\n')) + 1;
+                int lineAt = text.left(declPos).count(QLatin1Char('\n')) + 1;
                 if (inMacroContext(text, s))
+                {
+                    continue;
+                }
+                if (inCommentContext(text, s))
                 {
                     continue;
                 }
@@ -365,7 +373,7 @@ namespace CsvLangPlugin
             {
                 stats.skippedFiles << absPath;
                 stats.skipCount++;
-                log << QStringLiteral("  跳过(未匹配初始化/宏): ") << absPath
+                log << QStringLiteral("  跳过(未匹配初始化/宏/注释): ") << absPath
                     << QStringLiteral("  var=") << r.variableName
                     << QStringLiteral("  ignore_var=") << (ignoreVarName ? QStringLiteral("true") : QStringLiteral("false"))
                     << QStringLiteral("  line=") << r.lineNumber << QStringLiteral("\n");
