@@ -22,3 +22,10 @@ const  _Tr_TEXT var_simple6 = {"示例3", "Example3", "Example4", "Example4", "Exa
 const  _Tr_TEXT var_simple7 = {"示例4", "Example4", "Example5", "Example5", "Example", "Example", NULL}; 
 const  _Tr_TEXT var_simple8 = {"示例5", "Example5", "Example6", "Example6", "Example", "Example", NULL};
 
+
+
+
+
+const  _Tr_TEXT var_simple9 = {"示例11", "Example3", "Example4", "Example4", "Example2", "Example2", NULL};
+const  _Tr_TEXT var_simple10= {"示例12", "Example4", "Example5", "Example5", "Example", "Example", NULL}; 
+const  _Tr_TEXT var_simple11 = {"示例13", "Exam、、nple5", "Exam、、nple6", "Exam、、nple7", "Exam、、nple8", "Exam、、nple9", NULL};

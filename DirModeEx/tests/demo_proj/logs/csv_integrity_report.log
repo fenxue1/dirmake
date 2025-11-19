@@ -1,7 +1,7 @@
 CSV 完整性报告
-总行数(含空行): 12
-非空行数: 11
-解析行数: 10
+总行数(含空行): 15
+非空行数: 14
+解析行数: 13
 重复键行数: 0
 
 键频次分布(key|count):
@@ -9,8 +9,11 @@ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|17|var_simpl
 E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|18|var_simple2|1
 E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|19|var_simple3|1
 E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|21|var_simple6|1
-E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|22|var_simple7|1
-E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|23|var_simple8|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|27|var_simple7|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|28|var_simple8|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|34|var_simple9|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|35|var_simple10|1
+E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c|36|var_simple11|1
 E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c|15|var_simple|1
 E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c|17|var_simple2|1
 E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c|18|var_simple3|1
