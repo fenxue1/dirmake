@@ -126,12 +126,18 @@ namespace CsvLangPlugin
     {
         Q_UNUSED(structLangs);
         Q_UNUSED(colMap);
-        QStringList items;
-        items.reserve(csvValues.size() + 1);
-        for (const QString &v : csvValues)
-            items << QStringLiteral("\"%1\"").arg(cEscape(v));
-        items << QStringLiteral("NULL");
-        return items.join(QStringLiteral(", "));
+        QString out;
+        QString indent = QStringLiteral("\n    ");
+        if (!csvValues.isEmpty())
+        {
+            for (int i = 0; i < csvValues.size(); ++i)
+            {
+                QString esc = cEscape(csvValues.at(i));
+                out += indent + QStringLiteral("\"%1\",").arg(esc);
+            }
+        }
+        out += QStringLiteral("\n ") + QStringLiteral("NULL");
+        return out;
     }
 
     static QMutex gFileWriteMutex;

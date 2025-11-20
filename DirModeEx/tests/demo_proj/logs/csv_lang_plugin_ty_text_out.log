@@ -903,3 +903,21 @@ CSV解析统计: 总行15 非空14 解析13 重复键行0 报告=E:/code/cpeject
 成功:13 跳过:0 失败:0
 2025-11-19 23:03:23 END
 
+2025-11-20 19:57:04 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行15 非空14 解析13 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+成功:13 跳过:0 失败:0
+2025-11-20 19:57:04 END
+

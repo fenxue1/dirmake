@@ -12,8 +12,36 @@
 #include "../include/tr_text.h"
 
 
-const  _Tr_TEXT var_simple = {"示例6", "Example6", "Example7", "Example7", "\x45\x78\x61\x6D\x70\x6C\x65\x32", "Example2", NULL}; 
+const  _Tr_TEXT var_simple = {
+    "示例6",
+    "Example6",
+    "Example7",
+    "Example7",
+    "\x45\x78\x61\x6D\x70\x6C\x65\x32",
+    "Example2",
+ NULL}; 
 
-static  const  _Tr_TEXT var_simple2 = {"示例8", "Example8", "Example9", "Example9", "\x45\x78\x61\x6D\x70\x6C\x65", "Example", NULL};
-const  _Tr_TEXT var_simple3 = {"示例9", "Example9", "Example10", "Example10", "\x45\x78\x61\x6D\x70\x6C\x65", "Example", NULL};
-const  _Tr_TEXT var_simple4 = {"示例9", "Example9", "Example10", "Example10", "\x45\x78\x61\x6D\x70\x6C\x65", "Example", NULL};
+static  const  _Tr_TEXT var_simple2 = {
+    "示例8",
+    "Example8",
+    "Example9",
+    "Example9",
+    "\x45\x78\x61\x6D\x70\x6C\x65",
+    "Example",
+ NULL};
+const  _Tr_TEXT var_simple3 = {
+    "示例9",
+    "Example9",
+    "Example10",
+    "Example10",
+    "\x45\x78\x61\x6D\x70\x6C\x65",
+    "Example",
+ NULL};
+const  _Tr_TEXT var_simple4 = {
+    "示例9",
+    "Example9",
+    "Example10",
+    "Example10",
+    "\x45\x78\x61\x6D\x70\x6C\x65",
+    "Example",
+ NULL};

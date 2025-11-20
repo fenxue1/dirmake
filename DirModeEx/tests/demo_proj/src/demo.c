@@ -8,24 +8,83 @@
  */
 #include "../include/tr_text.h"
 
-//const  _Tr_TEXT var_simple1 = {"示例2", 
-// "Example2",
-//  "Example2", 
-//  "Example2", 
+// const  _Tr_TEXT var_simple1 = {"示例2",
 //  "Example2",
-//   "Example2", NULL};
-const  _Tr_TEXT var_simple1 = {"示例1", "Example1", "Example2", "Example1", "Example1", "Example1", NULL};
-const  _Tr_TEXT var_simple2 = {"示例1", "Example1", "Example2", "Example2", "Example", "Example", NULL}; 
-const  _Tr_TEXT var_simple3 = {"示例2", "Example2", "Example3", "Example3", "Example", "Example", NULL};
+//   "Example2",
+//   "Example2",
+//   "Example2",
+//    "Example2", NULL};
+const _Tr_TEXT var_simple1 = {
+    "示例1",
+    "Example1",
+    "Example2",
+    "Example1",
+    "Example1",
+    "Example1",
+ NULL};
+const _Tr_TEXT var_simple2 = {
+    "示例1",
+    "Example1",
+    "Example2",
+    "Example2",
+    "Example",
+    "Example",
+ NULL};
+const _Tr_TEXT var_simple3 = {
+    "示例2",
+    "Example2",
+    "Example3",
+    "Example3",
+    "Example",
+    "Example",
+ NULL};
 
-const  _Tr_TEXT var_simple6 = {"示例3", "Example3", "Example4", "Example4", "Example2", "Example2", NULL};
-const  _Tr_TEXT var_simple7 = {"示例4", "Example4", "Example5", "Example5", "Example", "Example", NULL}; 
-const  _Tr_TEXT var_simple8 = {"示例5", "Example5", "Example6", "Example6", "Example", "Example", NULL};
+const _Tr_TEXT var_simple6 = {
+    "示例3",
+    "Example3",
+    "Example4",
+    "Example4",
+    "Example2",
+    "Example2",
+ NULL};
+const _Tr_TEXT var_simple7 = {
+    "示例4",
+    "Example4",
+    "Example5",
+    "Example5",
+    "Example",
+    "Example",
+ NULL};
+const _Tr_TEXT var_simple8 = {
+    "示例5",
+    "Example5",
+    "Example6",
+    "Example6",
+    "Example",
+    "Example",
+ NULL};
 
-
-
-
-
-const  _Tr_TEXT var_simple9 = {"示例11", "Example3", "Example4", "Example4", "Example2", "Example2", NULL};
-const  _Tr_TEXT var_simple10= {"示例12", "Example4", "Example5", "Example5", "Example", "Example", NULL}; 
-const  _Tr_TEXT var_simple11 = {"示例13", "Exam、、nple5", "Exam、、nple6", "Exam、、nple7", "Exam、、nple8", "Exam、、nple9", NULL};
+const _Tr_TEXT var_simple9 = {
+    "示例11",
+    "Example3",
+    "Example4",
+    "Example4",
+    "Example2",
+    "Example2",
+ NULL};
+const _Tr_TEXT var_simple10 = {
+    "示例12",
+    "Example4",
+    "Example5",
+    "Example5",
+    "Example",
+    "Example",
+ NULL};
+const _Tr_TEXT var_simple11 = {
+    "示例13",
+    "Exam、、nple5",
+    "Exam、、nple6",
+    "Exam、、nple7",
+    "Exam、、nple8",
+    "Exam、、nple9",
+ NULL};
