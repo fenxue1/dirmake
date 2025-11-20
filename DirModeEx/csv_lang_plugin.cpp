@@ -140,6 +140,44 @@ namespace CsvLangPlugin
         return out;
     }
 
+    static QString buildArrayBody(const QString &origBody,
+                                  const QList<QStringList> &elements,
+                                  const QMap<QString, int> &colMap)
+    {
+        QString indent = QStringLiteral("\n    ");
+        int nl = origBody.indexOf(QLatin1Char('\n'));
+        if (nl >= 0)
+        {
+            int i = nl + 1; int spaces = 0;
+            while (i < origBody.size() && (origBody.at(i) == QLatin1Char(' ') || origBody.at(i) == QLatin1Char('\t'))) { spaces++; i++; }
+            indent = QStringLiteral("\n") + QString(spaces, QLatin1Char(' '));
+        }
+        bool hasTailNull = QRegularExpression(QStringLiteral("\n\s*NULL\s*$")).match(origBody.trimmed()).hasMatch();
+        int enIdx = colMap.value(QStringLiteral("en"), 1);
+        QString out;
+        for (int k = 0; k < elements.size(); ++k)
+        {
+            const QStringList &vals = elements.at(k);
+            QStringList items;
+            int n = vals.size();
+            for (int i = 0; i < n; ++i)
+            {
+                QString v = vals.at(i);
+                if (v.isEmpty() && enIdx >= 0 && enIdx < n) v = vals.at(enIdx);
+                items << QStringLiteral("\"%1\"").arg(cEscape(v));
+            }
+            items << QStringLiteral("NULL");
+            QString elem = QStringLiteral("{ %1 }").arg(items.join(QStringLiteral(", ")));
+            if (hasTailNull || k < elements.size() - 1) elem += QStringLiteral(",");
+            out += indent + elem;
+        }
+        if (hasTailNull)
+            out += indent + QStringLiteral("NULL") + QStringLiteral("\n");
+        else
+            out += QStringLiteral("\n");
+        return out;
+    }
+
     static QMutex gFileWriteMutex;
 
     CsvProcessStats applyTranslations(const QString &projectRoot,
@@ -263,8 +301,10 @@ namespace CsvLangPlugin
             }
         }
 
-        for (const CsvRow &r : rows)
+        int iRow = 0;
+        while (iRow < rows.size())
         {
+            const CsvRow &r = rows.at(iRow);
             QString absPath = r.sourcePath;
             if (QDir::isRelativePath(absPath))
                 absPath = QDir(projectRoot).absoluteFilePath(absPath);
@@ -293,6 +333,110 @@ namespace CsvLangPlugin
                 stats.failedFiles << absPath;
                 stats.failCount++;
                 log << QStringLiteral("  无法解码: ") << absPath << QStringLiteral("\n");
+                iRow++;
+                continue;
+            }
+
+            // 处理数组CSV：variableName 形如 "...var[]" 作为头行，后续空var行作为元素
+            QRegularExpression reArrHeader(QStringLiteral("([A-Za-z_]\\w*)\\s*\\[\\s*\\]$"));
+            auto arrMatch = reArrHeader.match(r.variableName);
+            if (arrMatch.hasMatch())
+            {
+                QString varName = arrMatch.captured(1);
+                QString patt = QStringLiteral(R"((?:static\s+)?(?:const\s+)?(?:struct\s+)?(\w+)(?:\s+\w+)*\s+(?:\*+\s*)?%1\s*\[[^\]]*\]\s*=\s*\{(.*?)\};)" ).arg(QRegularExpression::escape(varName));
+                QRegularExpression reArr(patt, QRegularExpression::DotMatchesEverythingOption);
+                int anchorLine = r.lineNumber > 0 ? r.lineNumber : 1;
+                QStringList linesText = text.split(QLatin1Char('\n'));
+                QVector<int> offsets(linesText.size() + 1);
+                int acc = 0;
+                for (int i = 0; i < linesText.size(); ++i) { offsets[i] = acc; acc += linesText[i].size() + 1; }
+                offsets[linesText.size()] = acc;
+                int startIdx = qBound(0, anchorLine - 1 - 50, linesText.size());
+                int endIdx = qBound(0, anchorLine - 1 + 200, linesText.size());
+                int subStart = offsets[startIdx];
+                int subLen = offsets[endIdx] - subStart;
+                if (subLen < 0 || subStart < 0 || subStart >= text.size()) subStart = 0, subLen = text.size();
+                QString sub = text.mid(subStart, subLen);
+                auto m = reArr.match(sub);
+                if (!m.hasMatch())
+                {
+                    m = reArr.match(text);
+                    if (!m.hasMatch())
+                    {
+                        stats.skippedFiles << absPath;
+                        stats.skipCount++;
+                        iRow++;
+                        continue;
+                    }
+                    int s = m.capturedStart(2);
+                    int e = m.capturedEnd(2);
+                    QString origBody = text.mid(s, e - s);
+                    QList<QStringList> elems;
+                    iRow++;
+                    while (iRow < rows.size())
+                    {
+                        const CsvRow &ri = rows.at(iRow);
+                        if (!ri.variableName.isEmpty()) break;
+                        elems.append(ri.values);
+                        iRow++;
+                    }
+                    QString newBody = buildArrayBody(origBody, elems, colMap);
+                    QString before = text;
+                    QString after = text;
+                    after.replace(s, e - s, newBody);
+                    diffOut << DiffUtils::unifiedDiff(absPath, before, after);
+                    QMutexLocker writeLock(&gFileWriteMutex);
+                    QFile f2(absPath);
+                    if (f2.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                    {
+                        if (bom && codec == QStringLiteral("UTF-8")) f2.write("\xEF\xBB\xBF");
+                        QTextStream wr(&f2); wr.setCodec(codec.toUtf8().constData()); wr << after; f2.close();
+                        stats.successFiles << absPath; stats.successCount++;
+                        log << QStringLiteral("  修改(数组): ") << QDir(projectRoot).relativeFilePath(absPath) << QStringLiteral("  var=") << varName << QStringLiteral("\n");
+                    }
+                    else
+                    {
+                        stats.failedFiles << absPath; stats.failCount++;
+                    }
+                    continue;
+                }
+                int s = subStart + m.capturedStart(2);
+                int e = subStart + m.capturedEnd(2);
+                QString origBody = text.mid(s, e - s);
+                // 收集元素行
+                QList<QStringList> elems;
+                iRow++;
+                while (iRow < rows.size())
+                {
+                    const CsvRow &ri = rows.at(iRow);
+                    if (!ri.variableName.isEmpty()) break;
+                    QStringList vals = ri.values;
+                    if (!vals.isEmpty())
+                    {
+                        QString v0 = vals.first().trimmed();
+                        if (v0 == (varName + QStringLiteral("[]"))) vals.removeFirst();
+                    }
+                    elems.append(vals);
+                    iRow++;
+                }
+                QString newBody = buildArrayBody(origBody, elems, colMap);
+                QString before = text;
+                QString after = text;
+                after.replace(s, e - s, newBody);
+                diffOut << DiffUtils::unifiedDiff(absPath, before, after);
+                QMutexLocker writeLock(&gFileWriteMutex);
+                QFile f2(absPath);
+                if (f2.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                {
+                    if (bom && codec == QStringLiteral("UTF-8")) f2.write("\xEF\xBB\xBF");
+                    QTextStream wr(&f2); wr.setCodec(codec.toUtf8().constData()); wr << after; f2.close();
+                    stats.successFiles << absPath; stats.successCount++;
+                    log << QStringLiteral("  修改(数组): ") << QDir(projectRoot).relativeFilePath(absPath) << QStringLiteral("  var=") << varName << QStringLiteral("\n");
+                }
+                else
+                {
+                    stats.failedFiles << absPath; stats.failCount++;
+                }
                 continue;
             }
 
@@ -393,6 +537,7 @@ namespace CsvLangPlugin
                     << QStringLiteral("  var=") << r.variableName
                     << QStringLiteral("  ignore_var=") << (ignoreVarName ? QStringLiteral("true") : QStringLiteral("false"))
                     << QStringLiteral("  line=") << r.lineNumber << QStringLiteral("\n");
+                iRow++;
                 continue;
             }
 
@@ -402,6 +547,7 @@ namespace CsvLangPlugin
                 stats.skippedFiles << absPath;
                 stats.skipCount++;
                 log << QStringLiteral("  跳过(未发现语言列): ") << absPath << QStringLiteral("\n");
+                iRow++;
                 continue;
             }
 
@@ -470,6 +616,7 @@ namespace CsvLangPlugin
                 stats.successCount++;
                 log << QStringLiteral("  预览修改: ") << rel << QStringLiteral("\n");
             }
+            iRow++;
         }
 
         log << QStringLiteral("成功:") << stats.successCount << QStringLiteral(" 跳过:") << stats.skipCount << QStringLiteral(" 失败:") << stats.failCount << QStringLiteral("\n");

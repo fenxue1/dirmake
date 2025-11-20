@@ -33,6 +33,13 @@ struct ExtractedBlock {
     int lineNumber{0};
 };
 
+struct ExtractedArray {
+    QString arrayName;
+    QString sourceFile;
+    int lineNumber{0};
+    QList<QStringList> elements; // each element values in language order (without NULL)
+};
+
 namespace TextExtractor {
 
 // 语言列默认顺序
@@ -90,6 +97,17 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
  * @return 提取结果集合
  */
 QList<ExtractedBlock> scanDirectory(const QString &root, const QStringList &extensions, const QString &mode, const QMap<QString, QString> &defines, const QString &typeName, bool preserveEscapes);
+
+// 提取结构体数组（按类型名），返回每个数组的元素值集合
+QList<ExtractedArray> extractArrays(const QString &text, const QString &sourceFile, const QString &typeName, bool preserveEscapes);
+QList<ExtractedArray> scanDirectoryArrays(const QString &root, const QStringList &extensions, const QString &mode, const QMap<QString, QString> &defines, const QString &typeName, bool preserveEscapes);
+
+// 写数组到独立CSV：首行写 header：source_path,line_number,array_variable,<lang columns>
+bool writeArraysCsv(const QString &outputPath,
+                    const QList<ExtractedArray> &arrays,
+                    const QStringList &langColumns,
+                    const QStringList &literalColumns,
+                    bool replaceAsciiCommaWithCn);
 
 // 发现语言列（通过结构体字段名后缀）
 /**

@@ -1,8 +1,8 @@
 /*
  * @Author: fenxue1 99110925+fenxue1@users.noreply.github.com
  * @Date: 2025-11-10 22:29:22
- * @LastEditors: fenxue1 99110925+fenxue1@users.noreply.github.com
- * @LastEditTime: 2025-11-17 18:58:46
+ * @LastEditors: fenxue1 1803651830@qq.com
+ * @LastEditTime: 2025-11-20 20:45:57
  * @FilePath: \test_mooc-clin\DirModeEx\mainwindow.h
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -236,6 +236,7 @@ private:
     QPushButton *m_csvFileBrowseBtn{nullptr};
     QProgressBar *m_csvProgress{nullptr};
     QPushButton *m_csvRunBtn{nullptr};
+    QPushButton *m_csvRunArraysBtn{nullptr};
     QPushButton *m_csvExportLogBtn{nullptr};
     QTextEdit *m_csvReportView{nullptr};
 
@@ -262,6 +263,7 @@ private slots:
      * @brief 一键执行中文专用提取（仅保留含中文的条目）（One-click Chinese-only extraction）
      */
     void onExtractChinese();
+    void onExtractArrays();
 
     // CSV 翻译导入
     /**
@@ -276,6 +278,7 @@ private slots:
      * @brief 运行 CSV 翻译导入流程（Run CSV translations import process）
      */
     void onRunCsvImport();
+    void onRunArrayCsvImport();
     /**
      * @brief 导出 CSV 导入报告日志（Export CSV import report log）
      */

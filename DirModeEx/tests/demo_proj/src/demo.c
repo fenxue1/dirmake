@@ -2,7 +2,7 @@
  * @Author: fenxue1 99110925+fenxue1@users.noreply.github.com
  * @Date: 2025-11-17 19:59:30
  * @LastEditors: fenxue1 1803651830@qq.com
- * @LastEditTime: 2025-11-20 20:01:33
+ * @LastEditTime: 2025-11-20 21:10:34
  * @FilePath: \DirModeEx\tests\demo_proj\src\demo.c
  * @Description: 杩欐槸榛橈拷?锟斤拷?锟界疆,璇凤拷?锟界疆`customMade`, 鎵撳紑koroFileHeader鏌ョ湅閰嶇疆 杩涳拷?锟斤拷?锟界疆: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -90,9 +90,16 @@ const _Tr_TEXT var_simple11 = {
  NULL};
 
 
- const _Tr_TEXT var_maxtx[] = {
-    { "示例1","Exam、、nple5","Exam、、nple5","Exam、、nple5","Exam、、nple5",NULL},
-    { "示例2","Exam、、nple5","Exam、、nple5","Exam、、nple5","Exam、、nple5",NULL},
-    { "示例3","Exam、、nple5","Exam、、nple5","Exam、、nple5","Exam、、nple5",NULL},
-    { "示例4","Exam、、nple5","Exam、、nple5","Exam、、nple5","Exam、、nple5",NULL},
- NULL};
+ static const _Tr_TEXT var_maxtx[] = {
+      { "var_maxtx[]", "var_maxtx1[]", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
+};
+
+
+//这是原本的
+ static const _Tr_TEXT var_maxtx1[22321] = {
+    { "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
+};
+//这是修改后的有问题
+ static const _Tr_TEXT var_maxtx1[22321] = {
+    { "var_maxtx[]","示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
+};

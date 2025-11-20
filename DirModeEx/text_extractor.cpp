@@ -1,8 +1,8 @@
 /*
  * @Author: fenxue1 99110925+fenxue1@users.noreply.github.com
  * @Date: 2025-11-10 23:45:24
- * @LastEditors: fenxue1 99110925+fenxue1@users.noreply.github.com
- * @LastEditTime: 2025-11-17 19:20:46
+ * @LastEditors: fenxue1 1803651830@qq.com
+ * @LastEditTime: 2025-11-20 20:13:20
  * @FilePath: \test_mooc-clin\DirModeEx\text_extractor.cpp
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -523,6 +523,224 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
         }
     }
     return results;
+}
+
+QList<ExtractedArray> extractArrays(const QString &text, const QString &sourceFile, const QString &typeName, bool preserveEscapes)
+{
+    QString ncAll = stripComments(text);
+QRegularExpression reDecl(QString::fromLatin1(R"((?:(?:static|const)\s+)*(?:struct\s+)?%1(?:\s+\w+)*\s*(?:\*+)?\s+([A-Za-z_]\w*)\s*\[[^\]]*\]\s*=\s*\{(.*?)\};)" )
+                                  .arg(QRegularExpression::escape(typeName)), QRegularExpression::DotMatchesEverythingOption);
+    auto it = reDecl.globalMatch(ncAll);
+QRegularExpression reElem(QString::fromLatin1(R"(\{([\s\S]*?)\})"));
+QRegularExpression reStr(QString::fromLatin1(R"("(?:\.|[^"])*")"));
+    QList<ExtractedArray> out;
+    while (it.hasNext())
+    {
+        auto m = it.next();
+        QString var = m.captured(1);
+        QString body = m.captured(2);
+        int startPos = m.capturedStart(0);
+        int declLine = ncAll.left(startPos).count(QLatin1Char('\n')) + 1;
+        QList<QStringList> elements;
+        auto me = reElem.globalMatch(body);
+        while (me.hasNext())
+        {
+            auto em = me.next();
+            QString inner = em.captured(1);
+            int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\s,])(NULL|nullptr)(?:[\s,]|$)")));
+            QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
+            QStringList strs;
+            auto sit = reStr.globalMatch(innerFor);
+            while (sit.hasNext())
+            {
+                auto sm = sit.next();
+                QString decoded = decodeCEscapedString(sm.captured(0), preserveEscapes);
+                strs << decoded;
+            }
+            if (!strs.isEmpty())
+                elements.append(strs);
+        }
+        out.append({var, sourceFile, declLine, elements});
+    }
+    if (!out.isEmpty())
+        return out;
+
+    // Fallback: line-based scan for robustness
+    QStringList lines = text.split(QLatin1Char('\n'));
+    QRegularExpression reStart(QString::fromLatin1(R"((?:(?:static|const)\s+)*(?:struct\s+)?%1(?:\s+\w+)*\s*(?:\*+)?\s+([A-Za-z_]\w*)\s*\[[^\]]*\]\s*=\s*)")
+                                      .arg(QRegularExpression::escape(typeName)));
+    for (int i = 0; i < lines.size(); ++i)
+    {
+        QString line = lines[i];
+        auto m = reStart.match(line);
+        if (!m.hasMatch()) continue;
+        QString var = m.captured(1);
+        int declLine = i + 1;
+        QStringList buf; buf << line; int braceDepth = line.count(QLatin1Char('{')) - line.count(QLatin1Char('}'));
+        bool started = line.contains(QLatin1Char('{'));
+        i++;
+        while (i < lines.size())
+        {
+            buf << lines[i];
+            braceDepth += lines[i].count(QLatin1Char('{'));
+            braceDepth -= lines[i].count(QLatin1Char('}'));
+            if (started && braceDepth == 0 && lines[i].contains(QStringLiteral("};")))
+            { i++; break; }
+            i++;
+        }
+        QString block = buf.join(QLatin1Char('\n'));
+        QString nc = stripComments(block);
+        QRegularExpression reInner(QString::fromLatin1(R"(\{(.*)\};)"), QRegularExpression::DotMatchesEverythingOption);
+        auto mi = reInner.match(nc);
+        if (!mi.hasMatch()) continue;
+        QString body = mi.captured(1);
+        QList<QStringList> elements;
+        auto me = reElem.globalMatch(body);
+        while (me.hasNext())
+        {
+            auto em = me.next();
+            QString inner = em.captured(1);
+            int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\s,])(NULL|nullptr)(?:[\s,]|$)")));
+            QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
+            QStringList strs;
+            auto sit = reStr.globalMatch(innerFor);
+            while (sit.hasNext())
+            {
+                auto sm = sit.next();
+                QString decoded = decodeCEscapedString(sm.captured(0), preserveEscapes);
+                strs << decoded;
+            }
+            if (!strs.isEmpty()) elements.append(strs);
+        }
+        out.append({var, sourceFile, declLine, elements});
+    }
+    return out;
+
+    // Fallback 2: tolerate unknown alias (match any typedef name)
+    // Useful when preprocess alters type alias rendering
+    QList<ExtractedArray> out2;
+    QRegularExpression reDeclAny(QString::fromLatin1(R"((?:(?:static|const)\s+)*(?:struct\s+)?\w+(?:\s+\w+)*\s*(?:\*+)?\s+([A-Za-z_]\w*)\s*\[[^\]]*\]\s*=\s*\{(.*?)\};)"), QRegularExpression::DotMatchesEverythingOption);
+    auto it2 = reDeclAny.globalMatch(text);
+    while (it2.hasNext())
+    {
+        auto m = it2.next();
+        QString var = m.captured(1);
+        QString body = m.captured(2);
+        int startPos = m.capturedStart(0);
+        int declLine = text.left(startPos).count(QLatin1Char('\n')) + 1;
+        QList<QStringList> elements;
+        auto me = reElem.globalMatch(body);
+        while (me.hasNext())
+        {
+            auto em = me.next();
+            QString inner = em.captured(1);
+            int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\s,])(NULL|nullptr)(?:[\s,]|$)")));
+            QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
+            QStringList strs;
+            auto sit = reStr.globalMatch(innerFor);
+            while (sit.hasNext())
+            {
+                auto sm = sit.next();
+                QString decoded = decodeCEscapedString(sm.captured(0), preserveEscapes);
+                strs << decoded;
+            }
+            if (!strs.isEmpty()) elements.append(strs);
+        }
+        if (!elements.isEmpty()) out2.append({var, sourceFile, declLine, elements});
+    }
+    return out2;
+}
+
+QList<ExtractedArray> scanDirectoryArrays(const QString &root, const QStringList &extensions, const QString &mode, const QMap<QString, QString> &defines, const QString &typeName, bool preserveEscapes)
+{
+    QList<ExtractedArray> all;
+    QDir dir(root);
+    QStringList exts = extensions.isEmpty() ? QStringList{QStringLiteral(".h"), QStringLiteral(".hpp"), QStringLiteral(".c"), QStringLiteral(".cpp")} : extensions;
+    auto matchExt = [&](const QString &fn)
+    { for (const QString &e : exts) if (fn.toLower().endsWith(e.toLower())) return true; return false; };
+    QList<QString> stack; stack << dir.absolutePath();
+    while (!stack.isEmpty())
+    {
+        QString path = stack.takeLast();
+        QDir d(path);
+        QFileInfoList infos = d.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QFileInfo &fi : infos)
+        {
+            if (fi.isDir()) { stack << fi.absoluteFilePath(); continue; }
+            if (!matchExt(fi.fileName())) continue;
+            QString text = readTextFile(fi.absoluteFilePath());
+            QString t = (mode == QLatin1String("effective")) ? preprocess(text, defines) : text;
+            auto arrays = extractArrays(t, fi.absoluteFilePath(), typeName, preserveEscapes);
+            if (arrays.isEmpty() && mode == QLatin1String("effective"))
+            {
+                arrays = extractArrays(text, fi.absoluteFilePath(), typeName, preserveEscapes);
+            }
+            all.append(arrays);
+        }
+    }
+    return all;
+}
+
+static QString hexEscapeIfNeeded(const QString &s, bool literal, bool replaceComma)
+{
+    if (literal) return s;
+    QByteArray b = s.toUtf8();
+    QString out;
+    for (int i = 0; i < b.size(); ++i)
+    {
+        unsigned char ch = static_cast<unsigned char>(b[i]);
+        if (ch < 0x20 || ch >= 0x80)
+        {
+            out += QStringLiteral("\\x%1").arg(QString::number(ch, 16).toUpper()).rightJustified(4, QLatin1Char('0'));
+        }
+        else
+        {
+            QChar c = QLatin1Char(ch);
+            if (replaceComma && c == QLatin1Char(',')) out += QLatin1String("，"); else out += c;
+        }
+    }
+    return out;
+}
+
+bool writeArraysCsv(const QString &outputPath,
+                    const QList<ExtractedArray> &arrays,
+                    const QStringList &langColumns,
+                    const QStringList &literalColumns,
+                    bool replaceAsciiCommaWithCn)
+{
+    QFile f(outputPath);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) return false;
+    QTextStream ts(&f); ts.setCodec("UTF-8"); ts << QChar(0xFEFF);
+    // header
+    ts << "source_path,line_number,array_variable";
+    for (const QString &c : langColumns) ts << "," << c;
+    ts << "\n";
+    auto isLiteral = [&](int idx){ return literalColumns.contains(langColumns.value(idx)); };
+    for (const auto &arr : arrays)
+    {
+        for (int i = 0; i < arr.elements.size(); ++i)
+        {
+            const QStringList &vals = arr.elements.at(i);
+            if (i == 0)
+            {
+                ts << '"' << arr.sourceFile << '"' << "," << '"' << QString::number(arr.lineNumber) << '"' << "," << '"' << arr.arrayName << "[]" << '"';
+            }
+            else
+            {
+                ts << ",," << '"' << arr.arrayName << "[]" << '"';
+            }
+            int colCount = langColumns.size();
+            for (int c = 0; c < colCount; ++c)
+            {
+                QString v = c < vals.size() ? vals.at(c) : QString();
+                QString w = v;
+                w.replace("\"", "\"\"");
+                ts << "," << '"' << w << '"';
+            }
+            ts << "\n";
+        }
+    }
+    return true;
 }
 
     QList<ExtractedBlock> scanDirectory(const QString &root, const QStringList &extensions, const QString &mode, const QMap<QString, QString> &defines, const QString &typeName, bool preserveEscapes)
