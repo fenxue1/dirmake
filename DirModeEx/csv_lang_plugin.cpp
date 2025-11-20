@@ -336,6 +336,16 @@ namespace CsvLangPlugin
                 int s = m.capturedStart(2);
                 int e = m.capturedEnd(2);
                 int lineAt = text.left(declPos).count(QLatin1Char('\n')) + 1;
+                QString declText = m.captured(0);
+                int eqPos = declText.indexOf(QLatin1Char('='));
+                if (eqPos > 0)
+                {
+                    QString left = declText.left(eqPos);
+                    if (left.contains(QLatin1Char('[')))
+                    {
+                        continue; // 跳过结构体数组声明
+                    }
+                }
                 if (inMacroContext(text, s))
                 {
                     continue;
@@ -379,7 +389,7 @@ namespace CsvLangPlugin
             {
                 stats.skippedFiles << absPath;
                 stats.skipCount++;
-                log << QStringLiteral("  跳过(未匹配初始化/宏/注释): ") << absPath
+                log << QStringLiteral("  跳过(未匹配初始化/宏/注释/数组): ") << absPath
                     << QStringLiteral("  var=") << r.variableName
                     << QStringLiteral("  ignore_var=") << (ignoreVarName ? QStringLiteral("true") : QStringLiteral("false"))
                     << QStringLiteral("  line=") << r.lineNumber << QStringLiteral("\n");

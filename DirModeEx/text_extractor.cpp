@@ -382,6 +382,16 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
         while (itFull.hasNext())
         {
             auto m = itFull.next();
+            QString declText = m.captured(0);
+            int eqPos = declText.indexOf(QLatin1Char('='));
+            if (eqPos > 0)
+            {
+                QString left = declText.left(eqPos);
+                if (left.contains(QLatin1Char('[')))
+                {
+                    continue; // 跳过结构体数组声明
+                }
+            }
             QString var = m.captured(1);
             QString inner = m.captured(2);
             int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\s,])(NULL|nullptr)(?:[\s,]|$)")));
@@ -430,6 +440,18 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
         {
             i++;
             continue;
+        }
+        {
+            int eqPos = line.indexOf(QLatin1Char('='));
+            if (eqPos > 0)
+            {
+                QString left = line.left(eqPos);
+                if (left.contains(QLatin1Char('[')))
+                {
+                    i++;
+                    continue; // 跳过结构体数组声明
+                }
+            }
         }
             QString var = m.captured(1);
             int declLine = i + 1;

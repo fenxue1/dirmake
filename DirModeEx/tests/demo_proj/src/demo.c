@@ -2,7 +2,7 @@
  * @Author: fenxue1 99110925+fenxue1@users.noreply.github.com
  * @Date: 2025-11-17 19:59:30
  * @LastEditors: fenxue1 1803651830@qq.com
- * @LastEditTime: 2025-11-19 21:46:22
+ * @LastEditTime: 2025-11-20 20:01:33
  * @FilePath: \DirModeEx\tests\demo_proj\src\demo.c
  * @Description: è¿™æ˜¯é»˜ï¿½?ï¿½ï¿½?ï¿½ç½®,è¯·ï¿½?ï¿½ç½®`customMade`, æ‰“å¼€koroFileHeaderæŸ¥çœ‹é…ç½® è¿›ï¿½?ï¿½ï¿½?ï¿½ç½®: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -87,4 +87,12 @@ const _Tr_TEXT var_simple11 = {
     "Exam¡¢¡¢nple7",
     "Exam¡¢¡¢nple8",
     "Exam¡¢¡¢nple9",
+ NULL};
+
+
+ const _Tr_TEXT var_maxtx[] = {
+    { "Ê¾Àı1","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5",NULL},
+    { "Ê¾Àı2","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5",NULL},
+    { "Ê¾Àı3","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5",NULL},
+    { "Ê¾Àı4","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5","Exam¡¢¡¢nple5",NULL},
  NULL};
