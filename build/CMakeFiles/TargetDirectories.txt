@@ -1,0 +1,3 @@
+/mnt/e/code/cpeject/test_mooc-clin/build/CMakeFiles/my_program.dir
+/mnt/e/code/cpeject/test_mooc-clin/build/CMakeFiles/edit_cache.dir
+/mnt/e/code/cpeject/test_mooc-clin/build/CMakeFiles/rebuild_cache.dir

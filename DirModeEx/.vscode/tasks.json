@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CMake: Configure DirModeEx (Win7)",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "-S", "${workspaceFolder}",
+        "-B", "${workspaceFolder}/../build/DirModeEx",
+        "-G", "Visual Studio 16 2019",
+        "-A", "x64",
+        "-D", "CMAKE_EXPORT_COMPILE_COMMANDS=ON"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Build DirModeEx Debug",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build", "${workspaceFolder}/../build/DirModeEx",
+        "--config", "Debug"
+      ],
+      "dependsOn": "CMake: Configure DirModeEx (Win7)",
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Build DirModeEx Release",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build", "${workspaceFolder}/../build/DirModeEx",
+        "--config", "Release"
+      ],
+      "dependsOn": "CMake: Configure DirModeEx (Win7)",
+      "problemMatcher": []
+    }
+  ]
+}

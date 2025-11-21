@@ -1,0 +1,1 @@
+-isystem D:/Qt/5.14.2/mingw73_32/include -isystem D:/Qt/5.14.2/mingw73_32/include/QtWidgets -isystem D:/Qt/5.14.2/mingw73_32/include/QtGui -isystem D:/Qt/5.14.2/mingw73_32/include/QtANGLE -isystem D:/Qt/5.14.2/mingw73_32/include/QtCore -isystem "D:/Qt/5.14.2/mingw73_32/./mkspecs/win32-g++" -isystem D:/Qt/5.14.2/mingw73_32/include/QtConcurrent

@@ -1,0 +1,60 @@
+2025-11-17 20:33:46 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行11 非空10 解析9 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+成功:9 跳过:0 失败:0
+2025-11-17 20:33:46 END
+
+2025-11-17 20:43:45 BEGIN csv import root=E:\code\cpeject\test_mooc-clin\DirModeEx\tests\demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行11 非空10 解析9 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+成功:9 跳过:0 失败:0
+2025-11-17 20:43:45 END
+
+2025-11-17 21:15:36 BEGIN csv import root=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj csv=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/ty_text_out.csv
+CSV解析统计: 总行29 非空28 解析27 重复键行0 报告=E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/logs/csv_integrity_report.log
+  修改: .csv_lang_backups/20251117_203346/src/demo.c
+  修改: .csv_lang_backups/20251117_203346/src/demo.c
+  修改: .csv_lang_backups/20251117_203346/src/demo.c
+  修改: .csv_lang_backups/20251117_203346/src/demo.c
+  修改: .csv_lang_backups/20251117_203346/src/demo.c
+  修改: .csv_lang_backups/20251117_203346/src/demo.c
+  修改: .csv_lang_backups/20251117_203346/src/demo.c
+  修改: .csv_lang_backups/20251117_203346/src/demo2.c
+  修改: .csv_lang_backups/20251117_203346/src/demo2.c
+  修改: .csv_lang_backups/20251117_204345/src/demo.c
+  修改: .csv_lang_backups/20251117_204345/src/demo.c
+  修改: .csv_lang_backups/20251117_204345/src/demo.c
+  修改: .csv_lang_backups/20251117_204345/src/demo.c
+  修改: .csv_lang_backups/20251117_204345/src/demo.c
+  修改: .csv_lang_backups/20251117_204345/src/demo.c
+  修改: .csv_lang_backups/20251117_204345/src/demo.c
+  修改: .csv_lang_backups/20251117_204345/src/demo2.c
+  修改: .csv_lang_backups/20251117_204345/src/demo2.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo.c
+  修改: src/demo2.c
+  修改: src/demo2.c
+成功:27 跳过:0 失败:0
+2025-11-17 21:15:36 END
+

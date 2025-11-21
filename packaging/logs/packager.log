@@ -1,0 +1,29 @@
+2025-11-08 00:17:04,589 [INFO] Skip x86 build (no interpreter provided)
+2025-11-08 00:17:05,228 [INFO] Using Python 3.8.10 (64bit) at .\.venv\Scripts\python.exe for x64 build
+2025-11-08 00:17:05,228 [INFO] Installing/ensuring pyinstaller==4.10 via: .\.venv\Scripts\python.exe -m pip install pyinstaller==4.10
+2025-11-08 00:18:08,942 [INFO] Skip x86 build (no interpreter provided)
+2025-11-08 00:18:09,467 [INFO] Using Python 3.8.10 (64bit) at .\.venv\Scripts\python.exe for x64 build
+2025-11-08 00:18:09,968 [INFO] Installing/ensuring pyinstaller via: .\.venv\Scripts\python.exe -m pip install --default-timeout 120 pyinstaller
+2025-11-08 00:21:08,101 [INFO] Saved dependency snapshot to .\dist_win7\deps_snapshot_x64.json (packages: 10)
+2025-11-08 00:21:08,104 [INFO] Running PyInstaller: .\.venv\Scripts\python.exe -m PyInstaller .\gui_app\main.py --noconfirm --clean --distpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64 --workpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64\build --specpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64\spec --log-level INFO --onefile --version-file .\dist_win7\versioninfo.txt --noconsole
+2025-11-08 00:24:57,858 [INFO] Skip x86 build (no interpreter provided)
+2025-11-08 00:24:58,627 [INFO] Using Python 3.8.10 (64bit) at .\.venv\Scripts\python.exe for x64 build
+2025-11-08 00:24:59,984 [INFO] PyInstaller already present: 6.16.0
+2025-11-08 00:25:02,261 [INFO] Saved dependency snapshot to .\dist_win7\deps_snapshot_x64.json (packages: 10)
+2025-11-08 00:25:02,264 [INFO] Running PyInstaller: .\.venv\Scripts\python.exe -m PyInstaller .\gui_app\main.py --noconfirm --clean --distpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64 --workpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64\build --specpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64\spec --log-level INFO --onefile --version-file E:\code\cpeject\test_mooc-clin\dist_win7\versioninfo.txt --noconsole
+2025-11-08 00:25:17,193 [INFO] Generated: dist_win7\build_x64\main.exe
+2025-11-08 00:25:17,193 [INFO] All done. Built artifacts: [('x64', 'dist_win7\\build_x64\\main.exe')]
+2025-11-08 00:28:29,936 [INFO] Skip x86 build (no interpreter provided)
+2025-11-08 00:28:30,515 [INFO] Using Python 3.8.10 (64bit) at .\.venv\Scripts\python.exe for x64 build
+2025-11-08 00:28:31,722 [INFO] PyInstaller already present: 6.16.0
+2025-11-08 00:28:33,718 [INFO] Saved dependency snapshot to .\dist_win7\deps_snapshot_x64.json (packages: 10)
+2025-11-08 00:28:33,720 [INFO] Running PyInstaller: .\.venv\Scripts\python.exe -m PyInstaller .\gui_app\main.py --noconfirm --clean --distpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64 --workpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64\build --specpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64\spec --log-level INFO --onefile --version-file E:\code\cpeject\test_mooc-clin\dist_win7\versioninfo.txt --noconsole
+2025-11-08 00:28:46,896 [INFO] Generated: dist_win7\build_x64\main.exe
+2025-11-08 00:28:46,896 [INFO] All done. Built artifacts: [('x64', 'dist_win7\\build_x64\\main.exe')]
+2025-11-08 00:41:37,014 [INFO] Skip x86 build (no interpreter provided)
+2025-11-08 00:41:37,643 [INFO] Using Python 3.8.10 (64bit) at .\.venv\Scripts\python.exe for x64 build
+2025-11-08 00:41:38,889 [INFO] PyInstaller already present: 6.16.0
+2025-11-08 00:41:41,224 [INFO] Saved dependency snapshot to .\dist_win7\deps_snapshot_x64.json (packages: 13)
+2025-11-08 00:41:41,225 [INFO] Running PyInstaller: .\.venv\Scripts\python.exe -m PyInstaller .\gui_app\main.py --noconfirm --clean --distpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64 --workpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64\build --specpath E:\code\cpeject\test_mooc-clin\dist_win7\build_x64\spec --log-level INFO --onefile --version-file E:\code\cpeject\test_mooc-clin\dist_win7\versioninfo.txt --noconsole
+2025-11-08 00:42:13,436 [INFO] Generated: dist_win7\build_x64\main.exe
+2025-11-08 00:42:13,436 [INFO] All done. Built artifacts: [('x64', 'dist_win7\\build_x64\\main.exe')]
