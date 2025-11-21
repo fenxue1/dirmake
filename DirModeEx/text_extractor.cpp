@@ -2,7 +2,7 @@
  * @Author: fenxue1 99110925+fenxue1@users.noreply.github.com
  * @Date: 2025-11-10 23:45:24
  * @LastEditors: fenxue1 1803651830@qq.com
- * @LastEditTime: 2025-11-20 20:13:20
+ * @LastEditTime: 2025-11-20 21:39:10
  * @FilePath: \test_mooc-clin\DirModeEx\text_extractor.cpp
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -243,6 +243,8 @@ namespace TextExtractor
 
     QString preprocess(const QString &text, const QMap<QString, QString> &defines)
     {
+        // 预处理：仅解析 #if/#ifdef/#ifndef/#elif/#else/#endif 条件编译，其他行原样保留
+        // 步骤1：按行切分，初始化状态与栈；parentActive 表示父级是否启用，currentActive 当前分支是否启用，branchTaken 表示是否已有命中分支
         QStringList lines = text.split(QLatin1Char('\n'));
         QStringList out;
         struct Frame
@@ -261,6 +263,7 @@ namespace TextExtractor
         QRegularExpression reElif(QStringLiteral("^\\s*#\\s*elif\\b(.*)$"));
         QRegularExpression reElse(QStringLiteral("^\\s*#\\s*else\\b.*$"));
         QRegularExpression reEndif(QStringLiteral("^\\s*#\\s*endif\\b.*$"));
+        // 步骤2：解析条件表达式，支持 defined(NAME)、NAME ==/!= 值、宏名存在
         auto evalCond = [&](const QString &expr) -> bool
         {
             QString e = expr.trimmed();
@@ -290,6 +293,7 @@ namespace TextExtractor
             return false;
         };
 
+        // 步骤3：逐行扫描，维护条件栈，更新 parentActive/currentActive/branchTaken
         for (const QString &line : lines)
         {
             auto mIf = reIf.match(line);
@@ -366,6 +370,7 @@ namespace TextExtractor
                 }
                 continue;
             }
+            // 步骤4：当前分支有效则输出该行
             if (parentActive && currentActive)
                 out << line;
         }
@@ -374,6 +379,8 @@ namespace TextExtractor
 
 QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFile, const QString &typeName, bool preserveEscapes)
 {
+        // 解析结构体单个初始化块，忽略数组声明
+        // 步骤1：去除注释，使用正则一次性匹配完整声明与花括号体
         QString ncAll = stripComments(text);
         QRegularExpression reFull(QStringLiteral("(?:(?:static|const)\s+)*(?:struct\s+)?%1(?:\s+\w+)*\s*(?:\*+)?\s+([A-Za-z_]\w*)\s*(?:\[[^\]]*\])?(?:\s+\w+)*\s*=\s*(?:&\s*\([^)]*\)\s*)?\{(.*?)\};").arg(QRegularExpression::escape(typeName)), QRegularExpression::DotMatchesEverythingOption);
         QRegularExpression reStringsFull(QStringLiteral("\"(?:\\.|[^\"\\])*\""));
@@ -394,6 +401,7 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
             }
             QString var = m.captured(1);
             QString inner = m.captured(2);
+            // 步骤2：剥离末尾 NULL 哨兵，以免将其计入语言值
             int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\s,])(NULL|nullptr)(?:[\s,]|$)")));
             QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
             QStringList strs;
@@ -405,11 +413,14 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
                 strs << decoded;
             }
             int startPos = m.capturedStart(0);
-            int finalLine = ncAll.left(startPos).count(QLatin1Char('\n')) + 1;
+            int startPosOrig = text.indexOf(declText);
+            int finalLine = (startPosOrig >= 0) ? (text.left(startPosOrig).count(QLatin1Char('\n')) + 1)
+                                                : (ncAll.left(startPos).count(QLatin1Char('\n')) + 1);
             fast.append({var, strs, sourceFile, finalLine});
         }
         if (!fast.isEmpty())
             return fast;
+        // 兼容性回退：逐行扫描以适配不规则格式或换行
         QList<ExtractedBlock> results;
         QStringList lines = text.split(QLatin1Char('\n'));
         // 允许类型名与变量名之间的附加限定词（如 PROGMEM），以及指针/数组声明
@@ -442,6 +453,7 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
             continue;
         }
         {
+            // 步骤4：若为数组声明，跳过（本函数仅处理单个结构体变量）
             int eqPos = line.indexOf(QLatin1Char('='));
             if (eqPos > 0)
             {
@@ -463,6 +475,7 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
             int bodyStartLine = started ? declLine : 0;
         if (started && braceDepth == 0 && line.contains(QStringLiteral("};")))
         {
+            // 步骤5：单行初始化（{...};）直接解析内部字符串
             QString nc = stripComments(line);
             QRegularExpression reInner(QStringLiteral("\\{(.*)\\};"), QRegularExpression::DotMatchesEverythingOption);
             auto mi = reInner.match(nc);
@@ -484,6 +497,7 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
             }
             continue;
         }
+            // 步骤6：多行初始化，累积到结束的 '};'
             while (i < lines.size())
             {
                 buf << lines[i];
@@ -502,6 +516,7 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
                 i++;
             }
             QString block = buf.join(QLatin1Char('\n'));
+            // 步骤6：多行块解析，去注释后提取内部字符串
             QString nc = stripComments(block);
             QRegularExpression reInner(QStringLiteral("\\{(.*)\\};"), QRegularExpression::DotMatchesEverythingOption);
             auto mi = reInner.match(nc);
@@ -519,6 +534,7 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
                 strs << decoded;
             }
             int finalLine = (bodyStartLine > 0) ? bodyStartLine : declLine;
+            // 步骤7：记录变量名、解析后字符串与首行行号
             results.append({var, strs, sourceFile, finalLine});
         }
     }
@@ -527,6 +543,8 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
 
 QList<ExtractedArray> extractArrays(const QString &text, const QString &sourceFile, const QString &typeName, bool preserveEscapes)
 {
+    // 解析结构体数组，每个元素对应一组语言值
+    // 步骤1：去注释并用正则一次性匹配数组声明与主体
     QString ncAll = stripComments(text);
 QRegularExpression reDecl(QString::fromLatin1(R"((?:(?:static|const)\s+)*(?:struct\s+)?%1(?:\s+\w+)*\s*(?:\*+)?\s+([A-Za-z_]\w*)\s*\[[^\]]*\]\s*=\s*\{(.*?)\};)" )
                                   .arg(QRegularExpression::escape(typeName)), QRegularExpression::DotMatchesEverythingOption);
@@ -540,16 +558,21 @@ QRegularExpression reStr(QString::fromLatin1(R"("(?:\.|[^"])*")"));
         QString var = m.captured(1);
         QString body = m.captured(2);
         int startPos = m.capturedStart(0);
-        int declLine = ncAll.left(startPos).count(QLatin1Char('\n')) + 1;
+        QString fullDecl = m.captured(0);
+        int startPosOrig = text.indexOf(fullDecl);
+        int declLine = (startPosOrig >= 0) ? (text.left(startPosOrig).count(QLatin1Char('\n')) + 1)
+                                           : (ncAll.left(startPos).count(QLatin1Char('\n')) + 1);
         QList<QStringList> elements;
         auto me = reElem.globalMatch(body);
         while (me.hasNext())
         {
             auto em = me.next();
             QString inner = em.captured(1);
+            // 步骤2：剥离元素末尾的 NULL 哨兵
             int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\s,])(NULL|nullptr)(?:[\s,]|$)")));
             QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
             QStringList strs;
+            // 步骤3：提取元素内的字符串字面值并按语言顺序记录
             auto sit = reStr.globalMatch(innerFor);
             while (sit.hasNext())
             {
@@ -565,7 +588,7 @@ QRegularExpression reStr(QString::fromLatin1(R"("(?:\.|[^"])*")"));
     if (!out.isEmpty())
         return out;
 
-    // Fallback: line-based scan for robustness
+    // 兼容性回退：按行扫描以提升健壮性（适配混合格式）
     QStringList lines = text.split(QLatin1Char('\n'));
     QRegularExpression reStart(QString::fromLatin1(R"((?:(?:static|const)\s+)*(?:struct\s+)?%1(?:\s+\w+)*\s*(?:\*+)?\s+([A-Za-z_]\w*)\s*\[[^\]]*\]\s*=\s*)")
                                       .arg(QRegularExpression::escape(typeName)));
@@ -589,6 +612,7 @@ QRegularExpression reStr(QString::fromLatin1(R"("(?:\.|[^"])*")"));
             i++;
         }
         QString block = buf.join(QLatin1Char('\n'));
+        // 步骤4：多行块解析，去注释后提取内部元素
         QString nc = stripComments(block);
         QRegularExpression reInner(QString::fromLatin1(R"(\{(.*)\};)"), QRegularExpression::DotMatchesEverythingOption);
         auto mi = reInner.match(nc);
@@ -616,7 +640,7 @@ QRegularExpression reStr(QString::fromLatin1(R"("(?:\.|[^"])*")"));
     }
     return out;
 
-    // Fallback 2: tolerate unknown alias (match any typedef name)
+    // 兼容性回退2：容忍未知类型别名（匹配任意 typedef 名称）
     // Useful when preprocess alters type alias rendering
     QList<ExtractedArray> out2;
     QRegularExpression reDeclAny(QString::fromLatin1(R"((?:(?:static|const)\s+)*(?:struct\s+)?\w+(?:\s+\w+)*\s*(?:\*+)?\s+([A-Za-z_]\w*)\s*\[[^\]]*\]\s*=\s*\{(.*?)\};)"), QRegularExpression::DotMatchesEverythingOption);
@@ -901,6 +925,8 @@ bool writeCsv(const QString &outputPath,
               const QStringList &literalColumns,
               bool replaceAsciiCommaWithCn)
 {
+        // 将抽取结果写为 CSV；支持缺失填充、逗号替换，以及大文件分片写出
+        // 步骤1：判定某语言列是否为“直写列”（literal）
         auto isLiteralCol = [&](const QString &name) -> bool {
             QString n = name;
             QStringList cands;
@@ -914,6 +940,7 @@ bool writeCsv(const QString &outputPath,
                     return true;
             return false;
         };
+        // 步骤2：按范围写出一个片段，保持 UTF-8 与 BOM
         auto writeChunk = [&](const QString &path, int startIdx, int endIdx) -> bool {
             QFile f(path);
             if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate))
@@ -925,6 +952,7 @@ bool writeCsv(const QString &outputPath,
             headers << QStringLiteral("source_file") << QStringLiteral("line_number") << QStringLiteral("variable_name") << langColumns;
             ts << headers.join(QLatin1Char(',')) << QStringLiteral("\n");
 
+            // 步骤3：定位英文/中文列索引以用于缺失填充
             auto findEnglishIndex = [&]() -> int {
                 for (int i = 0; i < langColumns.size(); ++i)
                 {
@@ -946,6 +974,7 @@ bool writeCsv(const QString &outputPath,
             const int idxEn = findEnglishIndex();
             const int idxCn = findChineseIndex();
 
+            // 步骤4：逐行写出，空值按英文/中文回退填充，必要时替换逗号
             for (int ri = startIdx; ri < endIdx; ++ri)
             {
                 const auto &r = rows.at(ri);
@@ -982,6 +1011,7 @@ bool writeCsv(const QString &outputPath,
             return true;
         };
 
+        // 步骤5：对于超大数据集进行分片写出以减少单文件大小
         if (rows.size() > 5000)
         {
             int chunkSize = 2000;
@@ -1187,7 +1217,21 @@ QString generateCFromCsv(const QString &csvPath,
 {
     Q_UNUSED(useUtf8Literal);
     Q_UNUSED(perLine);
+    // 生成流程总览：
+    // 步骤1：读取 CSV（自动编码/BOM），拆分行并解析表头
+    // 步骤2：识别语言列并建立输出语言顺序（以结构体字段为准）
+    // 步骤3：构建语言列索引映射（text_xx 与 xx 均可匹配）
+    // 步骤4：准备格式化策略（UTF-8直写、十六进制、原样）
+    // 步骤5：准备 CSV 转义解码器（将 \\xNN 等转为字节）
+    // 步骤6：遍历数据行，写溯源注释、处理重名变量
+    // 步骤7：按语言顺序取值，必要时用英文列填充缺失
+    // 步骤8：根据“直写列/原样/默认”三种策略输出每个值
+    // 步骤9：为每个值输出序号或名称注释，统一风格
+    // 步骤10：末尾添加 NULL 哨兵行
+    // 步骤11：可选生成注册表数组以便集中引用
+    // 步骤12：写入 .c/.h，保留原文件编码与 BOM、换行风格
     // 使用与源码一致的自动编码读取，确保非 UTF-8 CSV 的中文也准确
+    // 步骤1：读取文本并按换行拆分
     QString content = readTextFile(csvPath);
     if (content.isEmpty())
         return QString();
@@ -1212,6 +1256,7 @@ QString generateCFromCsv(const QString &csvPath,
         }
         // 项目结构体语言顺序（以 _Tr_TEXT 的字段顺序为准），自动移除 text_other 哨兵
         QString rootDir = QFileInfo(csvPath).dir().absolutePath();
+        // 步骤2：扫描项目源码推断结构体语言字段顺序
         QStringList structLangs = discoverLanguageColumns(rootDir, QStringList{QLatin1String(".h"), QLatin1String(".hpp"), QLatin1String(".c"), QLatin1String(".cpp")}, typeName);
         QStringList outLangHeaders = structLangs; // 输出按结构体顺序
         // CSV 头到索引的映射（支持 text_xx 与 xx 互相匹配）
@@ -1235,6 +1280,7 @@ QString generateCFromCsv(const QString &csvPath,
         if (enHeaderIdx < 0)
             enHeaderIdx = indexForLang(QLatin1String("en"));
 
+        // 步骤4：输出格式策略
         auto fmtUtf8 = [&](const QString &s)
         { QString e = s; e.replace(QLatin1Char('\\'), QLatin1String("\\\\")).replace(QLatin1Char('"'), QLatin1String("\\\"")); return QStringLiteral("\"") + e + QStringLiteral("\""); };
         auto fmtHex = [&](const QString &s)
@@ -1254,6 +1300,7 @@ QString generateCFromCsv(const QString &csvPath,
         auto fmtVerb = [&](const QString &s)
         { QString e = s; e.replace(QLatin1Char('"'), QLatin1String("\\\"")); return QStringLiteral("\"") + e + QStringLiteral("\""); };
 
+        // 步骤5：解码 CSV 内的 \\xNN 等转义，便于统一输出
         auto decodeCsvEscapes = [&](const QString &s)
         {
             QByteArray bytes;
@@ -1332,6 +1379,7 @@ QString generateCFromCsv(const QString &csvPath,
     QStringList regs;
     // 记录已使用的变量名，避免集中生成时发生重定义
     QSet<QString> usedVarNames;
+    // 步骤6：逐行处理 CSV 数据并生成结构体初始化
     while (lineIdx < allLines.size())
     {
         QString line = allLines.at(lineIdx++);
@@ -1359,6 +1407,7 @@ QString generateCFromCsv(const QString &csvPath,
             if (!src.isEmpty() || !ln.isEmpty())
                 lines << QStringLiteral("/* source: %1 line: %2 */").arg(src, ln);
             // 生成阶段去重：若发现同名变量冲突，基于行号或递增后缀调整为唯一名
+            // 步骤7：变量名去重——基于行号或递增后缀生成唯一名
             QString emitVar = var;
             if (usedVarNames.contains(emitVar))
             {
@@ -1427,6 +1476,7 @@ QString generateCFromCsv(const QString &csvPath,
                 }
             }
             // 生成格式：一种语言一行，每行前带索引或名称注释
+            // 步骤9：为每个语言值生成注释（序号或名称）与行
             int langCount = vals.size();
             for (int i = 0; i < langCount; ++i)
             {
@@ -1445,6 +1495,7 @@ QString generateCFromCsv(const QString &csvPath,
                 lines << QStringLiteral("    %1,").arg(vals[i]);
             }
             // 末尾NULL哨兵：单独一行注释 + 值（强制添加）
+            // 步骤10：末尾追加 NULL 哨兵一行
             int sentinelIndex = langCount + 1;
             if (annotateMode == QStringLiteral("indices"))
             {
@@ -1465,6 +1516,7 @@ QString generateCFromCsv(const QString &csvPath,
             decls << QStringLiteral("extern const %1 %2;").arg(typeName, emitVar);
             regs << emitVar;
         }
+        // 步骤11：可选注册表数组输出
         if (registryEmit && !registryArrayName.isEmpty())
         {
             lines << QStringLiteral("const %1* %2[] = {").arg(typeName, registryArrayName);
@@ -1486,6 +1538,7 @@ QString generateCFromCsv(const QString &csvPath,
             lines << QStringLiteral("};") << QString();
         }
         QString code = lines.join(QLatin1Char('\n'));
+        // 步骤12：写出 .c/.h，保持原文件编码与 BOM
         if (!cOutputPath.isEmpty())
         {
             writeTextPreserveCodec(cOutputPath, code);

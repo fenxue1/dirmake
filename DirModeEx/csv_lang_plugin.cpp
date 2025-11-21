@@ -26,7 +26,11 @@ static QString readFileAutoCodec(const QString &path, QString &chosenCodec, bool
 namespace CsvLangPlugin
 {
 
-    static QString ensureLogsDir(const QString &root)
+/**
+ * @brief 确保并返回日志文件路径
+ * 目录：项目根下 logs；文件：csv_lang_plugin.log
+ */
+static QString ensureLogsDir(const QString &root)
     {
         QDir r(root);
         QString logs = r.absoluteFilePath(QStringLiteral("logs"));
@@ -34,7 +38,11 @@ namespace CsvLangPlugin
         return QDir(logs).absoluteFilePath(QStringLiteral("csv_lang_plugin.log"));
     }
 
-    static QString backupsSessionDir(const QString &root)
+/**
+ * @brief 创建并返回备份会话目录
+ * 基础目录：项目根下 .csv_lang_backups/时间戳
+ */
+static QString backupsSessionDir(const QString &root)
     {
         QDir r(root);
         QString base = r.absoluteFilePath(QStringLiteral(".csv_lang_backups"));
@@ -45,7 +53,10 @@ namespace CsvLangPlugin
         return sess;
     }
 
-    static bool inMacroContext(const QString &text, int matchStart)
+/**
+ * @brief 判断匹配是否出现在宏定义体内（粗略启发式）
+ */
+static bool inMacroContext(const QString &text, int matchStart)
     {
         // Skip if the initializer appears within a macro body (naive heuristic)
         int lineStart = text.lastIndexOf(QLatin1Char('\n'), matchStart);
@@ -58,7 +69,10 @@ namespace CsvLangPlugin
         return prevDefine > lineStart;
     }
 
-    static bool inCommentContext(const QString &text, int pos)
+/**
+ * @brief 判断位置是否处于注释中（// 或  ）
+ */
+static bool inCommentContext(const QString &text, int pos)
     {
         int lineStart = text.lastIndexOf(QLatin1Char('\n'), pos);
         if (lineStart < 0) lineStart = 0;
@@ -70,12 +84,18 @@ namespace CsvLangPlugin
         return open >= 0 && open > close;
     }
 
-    static QStringList discoverLangOrder(const QString &root, const QString &alias)
+/**
+ * @brief 发现结构体语言字段顺序
+ */
+static QStringList discoverLangOrder(const QString &root, const QString &alias)
     {
         return TextExtractor::discoverLanguageColumns(root, QStringList{QStringLiteral(".h"), QStringLiteral(".hpp"), QStringLiteral(".c"), QStringLiteral(".cpp")}, alias);
     }
 
-    static QStringList parseCsvLineSimple(const QString &line)
+/**
+ * @brief 解析 CSV 行（简版，支持双引号与转义）
+ */
+static QStringList parseCsvLineSimple(const QString &line)
     {
         QStringList out; QString cur; bool inq = false;
         for (int i = 0; i < line.size(); ++i)
@@ -103,7 +123,10 @@ namespace CsvLangPlugin
         out << cur; return out;
     }
 
-    static QString cEscape(const QString &s)
+/**
+ * @brief 将字符串转为 C 字面量安全形式（转义 \\"、\n、\r、\t）
+ */
+static QString cEscape(const QString &s)
     {
         QString out;
         out.reserve(s.size() * 2);
@@ -119,7 +142,10 @@ namespace CsvLangPlugin
         return out;
     }
 
-    static QString replaceInitializerBodyPreservingFormat(const QString &body,
+/**
+ * @brief 用 CSV 值替换初始化体，尽量保留原缩进/格式
+ */
+static QString replaceInitializerBodyPreservingFormat(const QString &body,
                                                           const QStringList &structLangs,
                                                           const QStringList &csvValues,
                                                           const QMap<QString, int> &colMap)
@@ -140,7 +166,11 @@ namespace CsvLangPlugin
         return out;
     }
 
-    static QString buildArrayBody(const QString &origBody,
+/**
+ * @brief 根据提取的数组元素重建数组初始化体
+ * 规则：每元素 { values, NULL }，保留尾部 NULL 与缩进。
+ */
+static QString buildArrayBody(const QString &origBody,
                                   const QList<QStringList> &elements,
                                   const QMap<QString, int> &colMap)
     {
@@ -180,9 +210,13 @@ namespace CsvLangPlugin
 
     static QMutex gFileWriteMutex;
 
-    CsvProcessStats applyTranslations(const QString &projectRoot,
-                                      const QString &csvPath,
-                                      const QJsonObject &config)
+/**
+ * @brief 将 CSV 翻译应用至 C 源文件中的初始化块
+ * 过程：解析 CSV→定位初始化（按行/邻近窗口）→替换正文→写差异与日志→备份或沙箱输出。
+ */
+CsvProcessStats applyTranslations(const QString &projectRoot,
+                                  const QString &csvPath,
+                                  const QJsonObject &config)
     {
         CsvProcessStats stats;
         QString logPath = config.contains(QStringLiteral("log_path"))

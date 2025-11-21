@@ -16,6 +16,10 @@ namespace DiffUtils
         return s.split(QLatin1String("\n"), Qt::KeepEmptyParts);
     }
 
+    /**
+     * @brief 生成统一 diff 文本
+     * 规则：输出头（---/+++），遍历两序列，拼接 -/+ 行；连续相同行作为上下文；每段以 @@ 标头给出范围。
+     */
     QString unifiedDiff(const QString &filePath, const QString &original, const QString &modified)
     {
         QStringList a = splitLines(original);

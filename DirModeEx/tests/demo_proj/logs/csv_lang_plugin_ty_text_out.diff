@@ -1,5 +1,9 @@
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
+@@ -26,0 +26,0 @@
+-    "示例1",
++    "示例2",
+     "Example1",
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
 +++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c
 --- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo.c

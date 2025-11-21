@@ -651,6 +651,11 @@ void MainWindow::log(const QString &msg)
     }
 }
 
+/**
+ * @brief 设置当前浏览路径并刷新目录与文件视图
+ * @param path 目标路径
+ * 功能：同步树视图与表格根索引、更新路径输入框、触发语言列复选框刷新与日志。
+ */
 void MainWindow::setCurrentPath(const QString &path)
 {
     QModelIndex dirIndex = m_dirModel->index(path);
@@ -670,12 +675,22 @@ void MainWindow::setCurrentPath(const QString &path)
     }
 }
 
+/**
+ * @brief 获取当前目录树选中路径
+ * @return 绝对路径
+ * 说明：用于文件操作与提取流程的默认根。
+ */
 QString MainWindow::currentDirPath() const
 {
     QModelIndex idx = m_tree->currentIndex();
     return m_dirModel->filePath(idx);
 }
 
+/**
+ * @brief 获取文件表中选中的项目的绝对路径列表
+ * @return 路径列表
+ * 用于复制、移动、删除等批量操作。
+ */
 QStringList MainWindow::selectedFilePaths() const
 {
     QStringList paths;
@@ -686,11 +701,19 @@ QStringList MainWindow::selectedFilePaths() const
     return paths;
 }
 
+/**
+ * @brief 回车设置路径
+ * 行为：读取路径输入框内容，调用 setCurrentPath。
+ */
 void MainWindow::onPathReturnPressed()
 {
     setCurrentPath(m_pathEdit->text());
 }
 
+/**
+ * @brief 目录树选择变化
+ * 行为：更新文件表根索引与路径输入框，保持浏览同步。
+ */
 void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModelIndex & /*previous*/)
 {
     const QString path = m_dirModel->filePath(current);
@@ -698,6 +721,10 @@ void MainWindow::onTreeSelectionChanged(const QModelIndex &current, const QModel
     m_pathEdit->setText(path);
 }
 
+/**
+ * @brief 文件表双击行为
+ * 目录则进入；文件则记录日志，留待后续打开。
+ */
 void MainWindow::onTableDoubleClicked(const QModelIndex &index)
 {
     /* 表格双击 | Double-click behavior: 目录进入；文件留作后续打开/预览。*/
@@ -714,6 +741,10 @@ void MainWindow::onTableDoubleClicked(const QModelIndex &index)
     }
 }
 
+/**
+ * @brief 刷新文件系统视图
+ * 通过重设根路径触发 QFileSystemModel 重新加载。
+ */
 void MainWindow::onRefresh()
 {
     const QString p = currentDirPath();
@@ -724,6 +755,10 @@ void MainWindow::onRefresh()
     log(QStringLiteral("已刷新"));
 }
 
+/**
+ * @brief 从源码提取到 CSV 的常规流程
+ * 步骤：解析扩展与宏→发现语言列→收集文件→并发提取→写入 CSV →提示
+ */
 void MainWindow::onExtractRun()
 {
     // 入口：普通提取（非中文专用）。逐步输出，帮助新手理解流程。
@@ -854,6 +889,10 @@ void MainWindow::onExtractRun()
     m_extractWatcher->setFuture(future);
 }
 
+/**
+ * @brief 一键提取“含中文”的条目至 CSV
+ * 筛选：根据语言列中中文字符命中保留；其他逻辑同常规提取。
+ */
 void MainWindow::onExtractChinese()
 {
     // 入口：一键提取中文。逐步输出，帮助新手理解流程。
@@ -947,6 +986,10 @@ void MainWindow::onExtractChinese()
     m_extractWatcher->setFuture(future);
 }
 
+/**
+ * @brief 提取结构体数组到独立 CSV
+ * 以 `_Tr_TEXT` 数组为目标，写出 `array_variable` 与元素行。
+ */
 void MainWindow::onExtractArrays()
 {
     const QString dir = m_pathEdit ? m_pathEdit->text() : QString();
@@ -1011,6 +1054,10 @@ void MainWindow::onExtractArrays()
     watcher->setFuture(future);
 }
 
+/**
+ * @brief 从 CSV 生成带注释的 C 源与头文件
+ * 选项：去除 static、生成注册表数组、直写列、注释模式、缺失填充等。
+ */
 void MainWindow::onGenerateRun()
 {
     const QString csv = m_csvInputEdit ? m_csvInputEdit->text() : QString();
@@ -1071,6 +1118,9 @@ void MainWindow::onGenerateRun()
     }
 }
 
+/**
+ * @brief 浏览并设置“项目设置”页的项目根目录
+ */
 void MainWindow::onBrowseProjectRoot()
 {
     QString dir = QFileDialog::getExistingDirectory(this, QStringLiteral("选择项目根目录"), QDir::homePath());
@@ -1078,6 +1128,10 @@ void MainWindow::onBrowseProjectRoot()
         m_projRootEdit->setText(dir);
 }
 
+/**
+ * @brief 初始化插入新语言字段
+ * 行为：在结构体中插入 `text_<lang>`，并批量重写初始化，生成备份与日志。
+ */
 void MainWindow::onInitNewLanguage()
 {
     QString root = m_projRootEdit ? m_projRootEdit->text().trimmed() : QString();
@@ -1108,6 +1162,10 @@ void MainWindow::onInitNewLanguage()
     }
 }
 
+/**
+ * @brief 撤销最近一次语言初始化会话
+ * 从备份目录恢复原文件。
+ */
 void MainWindow::onUndoLastInit()
 {
     QString root = m_projRootEdit ? m_projRootEdit->text().trimmed() : QString();
@@ -1130,6 +1188,10 @@ void MainWindow::onUndoLastInit()
     }
 }
 
+/**
+ * @brief 用英文填充缺失语言项
+ * 在每个初始化中将空/NULL 的项替换为英文列值。
+ */
 void MainWindow::onFillEnglishMissing()
 {
     QString root = m_projRootEdit ? m_projRootEdit->text().trimmed() : QString();
@@ -1154,6 +1216,9 @@ void MainWindow::onFillEnglishMissing()
     }
 }
 
+/**
+ * @brief 浏览 CSV 导入页的项目根目录
+ */
 void MainWindow::onBrowseCsvProject()
 {
     QString dir = QFileDialog::getExistingDirectory(this, "选择项目根目录", QDir::homePath());
@@ -1161,6 +1226,9 @@ void MainWindow::onBrowseCsvProject()
         m_csvProjEdit->setText(dir);
 }
 
+/**
+ * @brief 选择要导入的 CSV 文件（允许多选）
+ */
 void MainWindow::onBrowseCsvFile()
 {
     QStringList files = QFileDialog::getOpenFileNames(this, "选择CSV", QDir::homePath(), "CSV (*.csv)");
@@ -1168,6 +1236,10 @@ void MainWindow::onBrowseCsvFile()
         m_csvFileEdit->setText(files.join(QLatin1String(";")));
 }
 
+/**
+ * @brief 执行 CSV 翻译导入流程
+ * 合并统计：成功/跳过/失败及日志与差异路径，支持多 CSV 顺序处理。
+ */
 void MainWindow::onRunCsvImport()
 {
     QString root = m_csvProjEdit ? m_csvProjEdit->text().trimmed() : QString();
@@ -1273,6 +1345,10 @@ void MainWindow::onRunCsvImport()
     watcher->setFuture(fut);
 }
 
+/**
+ * @brief 仅导入结构体数组的 CSV
+ * 日志与差异文件名带 arrays 后缀。
+ */
 void MainWindow::onRunArrayCsvImport()
 {
     QString root = m_csvProjEdit ? m_csvProjEdit->text().trimmed() : QString();
@@ -1351,12 +1427,19 @@ void MainWindow::onRunArrayCsvImport()
     });
     watcher->setFuture(fut);
 }
+/**
+ * @brief 提示导入日志与差异文件的默认位置
+ */
 void MainWindow::onExportCsvLog()
 {
     QMessageBox::information(this, QStringLiteral("日志"), QStringLiteral("日志位于 logs/csv_lang_plugin.log，差异位于 logs/csv_lang_plugin.diff"));
 }
 
 // 根据当前目录与扩展，动态发现语言列并刷新复选框
+/**
+ * @brief 刷新“保留原文语言”动态复选框
+ * 异步发现语言列以避免卡顿；清空旧项等待填充。
+ */
 void MainWindow::refreshExtractLanguageChecks()
 {
     if (!m_extractLangBox)
@@ -1418,6 +1501,10 @@ void MainWindow::refreshExtractLanguageChecks()
     }
 }
 
+/**
+ * @brief 根据语言列填充复选框网格
+ * 默认勾选 `text_cn` 与 `text_en`。
+ */
 void MainWindow::applyLanguageChecks(const QStringList &langCols)
 {
     if (!m_extractLangBox)
@@ -1441,6 +1528,10 @@ void MainWindow::applyLanguageChecks(const QStringList &langCols)
     }
 }
 
+/**
+ * @brief 拖拽进入事件
+ * 支持拖拽目录与 CSV，分别切换到对应页签与设置输入。
+ */
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasUrls())
@@ -1453,6 +1544,10 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
+/**
+ * @brief 拖拽释放事件
+ * 目录进入“提取CSV”页并设为当前路径；CSV 进入“从CSV生成C”页并填充输入。
+ */
 void MainWindow::dropEvent(QDropEvent *event)
 {
     if (!event->mimeData()->hasUrls())
@@ -1490,6 +1585,9 @@ void MainWindow::dropEvent(QDropEvent *event)
     }
 }
 
+/**
+ * @brief 新建文件夹于当前路径
+ */
 void MainWindow::onNewFolder()
 {
     const QString base = currentDirPath();
@@ -1509,6 +1607,9 @@ void MainWindow::onNewFolder()
     }
 }
 
+/**
+ * @brief 重命名选中项
+ */
 void MainWindow::onRename()
 {
     QStringList files = selectedFilePaths();
@@ -1535,6 +1636,10 @@ void MainWindow::onRename()
     }
 }
 
+/**
+ * @brief 删除选中项（文件或文件夹）
+ * 目录使用 `removeRecursively`，文件使用 `QFile::remove`。
+ */
 void MainWindow::onDelete()
 {
     QStringList files = selectedFilePaths();
@@ -1568,6 +1673,10 @@ void MainWindow::onDelete()
     onRefresh();
 }
 
+/**
+ * @brief 复制选中项到目标目录
+ * 简化目录复制为创建同名空目录；文件使用 `QFile::copy`。
+ */
 void MainWindow::onCopy()
 {
     QStringList files = selectedFilePaths();
@@ -1601,6 +1710,10 @@ void MainWindow::onCopy()
     onRefresh();
 }
 
+/**
+ * @brief 移动选中项到目标目录
+ * 使用 `QFile::rename` 完成移动。
+ */
 void MainWindow::onMove()
 {
     QStringList files = selectedFilePaths();

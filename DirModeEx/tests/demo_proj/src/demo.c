@@ -8,20 +8,37 @@
  */
 #include "../include/tr_text.h"
 
-// const  _Tr_TEXT var_simple1 = {"示例2",
-//  "Example2",
-//   "Example2",
-//   "Example2",
-//   "Example2",
-//    "Example2", NULL};
+/**
+ * @file demo.c
+ * @brief `_Tr_TEXT` 结构体初始化示例（Demo of struct initializers）
+ *
+ * 说明：
+ * - 每个变量表示一组按语言顺序的字符串；末尾以 NULL 作为哨兵；
+ * - 用于测试文本提取、CSV 生成与导入等功能；
+ * - 部分条目包含异常字符/转义，便于验证编码/转义策略。
+ */
+#define   test_def (1)
+// 示例变量：按 `_Tr_TEXT` 字段顺序提供文本，末尾 NULL 哨兵
+#if(test_def == 1)
 const _Tr_TEXT var_simple1 = {
-    "示例1",
+    "示例2",
     "Example1",
     "Example2",
     "Example1",
     "Example1",
     "Example1",
  NULL};
+#else 
+const _Tr_TEXT var_simple1 = {
+    "示例1",   // text_cn
+    "Example1",// text_en
+    "Example2",// text_vn
+    "Example1",// text_ko
+    "Example1",// text_tr
+    "Example1",// text_ling
+    NULL         // text_other
+};
+#endif 
 const _Tr_TEXT var_simple2 = {
     "示例1",
     "Example1",
@@ -89,17 +106,16 @@ const _Tr_TEXT var_simple11 = {
     "Exam、、nple9",
  NULL};
 
-
- static const _Tr_TEXT var_maxtx[] = {
-      { "var_maxtx[]", "var_maxtx1[]", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
+// 结构体数组示例：用于测试数组提取与 CSV 导入
+static const _Tr_TEXT var_maxtx[] = {
+    { "var_maxtx[]", "var_maxtx1[]", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
 };
 
-
-//这是原本的
- static const _Tr_TEXT var_maxtx1[22321] = {
+// 注意：以下重复定义仅用于演示差异/校验，实际代码中不应重复定义同名变量
+static const _Tr_TEXT var_maxtx1[22321] = {
     { "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
 };
-//这是修改后的有问题
- static const _Tr_TEXT var_maxtx1[22321] = {
+// 演示“修改后的”版本（故意与上方同名，会导致重定义）：用于测试工具如何处理冲突
+static const _Tr_TEXT var_maxtx1[22321] = {
     { "var_maxtx[]","示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
 };

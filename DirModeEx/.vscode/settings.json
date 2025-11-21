@@ -4,7 +4,16 @@
     "qglobal.h": "cpp",
     "type_traits": "cpp",
     "*.tcc": "cpp",
-    "tr_text.h": "c"
+    "tr_text.h": "c",
+    "fstream": "c",
+    "array": "c",
+    "deque": "c",
+    "list": "c",
+    "string": "c",
+    "unordered_map": "c",
+    "vector": "c",
+    "string_view": "c",
+    "initializer_list": "c"
   },
   "cmake.sourceDirectory": "${workspaceFolder}",
   "cmake.buildDirectory": "${workspaceFolder}/../build/DirModeEx",

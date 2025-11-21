@@ -29,6 +29,9 @@ namespace ProjectLang
     static QString readFileAutoCodec(const QString &path, QString &chosenCodec, bool &utf8Bom);
     static bool writeTextWithCodec(const QString &path, const QString &text, const QString &codec, bool utf8Bom);
 
+    /**
+     * @brief 生成语言初始化日志路径（项目根 logs/lang_init.log）
+     */
     static QString ensureLogsDir(const QString &root)
     {
         QDir r(root);
@@ -37,6 +40,9 @@ namespace ProjectLang
         return QDir(logs).absoluteFilePath("lang_init.log");
     }
 
+    /**
+     * @brief 新增语言备份会话目录（项目根 .lang_init_backups/时间戳）
+     */
     static QString backupsSessionDir(const QString &root)
     {
         QDir r(root);
@@ -48,6 +54,9 @@ namespace ProjectLang
         return sess;
     }
 
+    /**
+     * @brief 英文填充备份会话目录（项目根 .lang_fill_eng_backups/时间戳）
+     */
     static QString backupsFillEngDir(const QString &root)
     {
         QDir r(root);
@@ -59,6 +68,9 @@ namespace ProjectLang
         return sess;
     }
 
+    /**
+     * @brief 列出候选头文件（.h/.hpp）供结构体字段插入
+     */
     static QStringList listCandidateFiles(const QString &root)
     {
         QStringList exts{".h", ".hpp"};
@@ -93,12 +105,21 @@ namespace ProjectLang
         return result;
     }
 
+    /**
+     * @brief 判断结构体体内是否含 text_* 指针字段
+     */
     static bool containsTextField(const QString &body)
     {
         QRegularExpression re(R"((const\s+char\s*\*\s*(?:p_)?text_\w+\s*;))");
         return re.match(body).hasMatch();
     }
 
+    /**
+     * @brief 在 typedef 结构体中插入新语言字段 `text_<lang>`（位于 text_other 之前）
+     * @param text 源文本
+     * @param langCode 语言代码（不含前缀）
+     * @param changed 是否发生修改
+     */
     static QString insertNewLanguageField(const QString &text, const QString &langCode, bool &changed)
     {
         changed = false;
@@ -176,6 +197,9 @@ namespace ProjectLang
         return out;
     }
 
+    /**
+     * @brief 添加新语言字段并批量重写初始化（以英文为模板），生成备份与日志
+     */
     InitResult addLanguageAndInitialize(const QString &root, const QString &langCode)
     {
         InitResult res;
@@ -285,6 +309,9 @@ namespace ProjectLang
         return res;
     }
 
+    /**
+     * @brief 撤销最近一次语言初始化：从 .lang_init_backups 恢复
+     */
     InitResult undoLastInitialization(const QString &root)
     {
         InitResult res;
@@ -429,6 +456,9 @@ namespace ProjectLang
         return true;
     }
 
+    /**
+     * @brief 将初始化体 token 化（字符串或 NULL）
+     */
     static QStringList tokenizeInitializerBody(const QString &body)
     {
         QStringList tokens;
@@ -442,6 +472,9 @@ namespace ProjectLang
         return tokens;
     }
 
+    /**
+     * @brief 判断初始化体末尾是否存在 NULL 哨兵
+     */
     static bool bodyHasNullSentinel(const QString &body)
     {
         // Check if last non-empty token before closing brace is NULL
@@ -456,6 +489,9 @@ namespace ProjectLang
         return last.contains("NULL");
     }
 
+    /**
+     * @brief 依据结构体语言顺序，用英文填充缺失项并重建多行初始化体
+     */
     static QStringList rebuildBodyFillMissingEnglish(const QStringList &structLangs, const QString &body)
     {
         QStringList tokens = tokenizeInitializerBody(body);
@@ -507,6 +543,9 @@ namespace ProjectLang
         return lines;
     }
 
+    /**
+     * @brief 重写文本中的初始化体，应用“缺失项用英文填充”
+     */
     static QString rewriteInitializersFillMissing(const QString &text,
                                                   const QString &alias,
                                                   const QStringList &structLangs,
@@ -536,6 +575,9 @@ namespace ProjectLang
         return out;
     }
 
+    /**
+     * @brief 批量填充缺失项为英文，生成备份与日志
+     */
     InitResult fillMissingEntriesWithEnglish(const QString &root)
     {
         InitResult res;
@@ -606,6 +648,9 @@ namespace ProjectLang
                                        : QStringLiteral("未发现需要补齐的初始化项");
         return res;
     }
+    /**
+     * @brief 列出源文件（.c/.cpp）供初始化重写
+     */
     static QStringList listSourceFiles(const QString &root)
     {
         QStringList exts{QStringLiteral(".c"), QStringLiteral(".cpp")};
@@ -640,6 +685,9 @@ namespace ProjectLang
         return result;
     }
 
+    /**
+     * @brief 收集包含 text_* 字段的结构体别名
+     */
     static QStringList collectAliasesWithTextFields(const QString &root)
     {
         QStringList result;
@@ -663,6 +711,9 @@ namespace ProjectLang
         return result;
     }
 
+    /**
+     * @brief 重建初始化体以插入新语言（复制英文），并插入索引注释与待翻译标记
+     */
     static QString rebuildInitializerBody(const QStringList &structLangs,
                                           const QString &newLangCode,
                                           const QString &body)
@@ -732,6 +783,9 @@ namespace ProjectLang
         return lines.join("\n");
     }
 
+    /**
+     * @brief 把文本内匹配到的初始化体重写为包含新语言的版本
+     */
     static QString rewriteInitializersInText(const QString &text,
                                              const QString &alias,
                                              const QStringList &structLangs,

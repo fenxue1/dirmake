@@ -180,6 +180,10 @@ namespace Csv
      * - 每行最少 3 列：sourcePath, lineNumber, variableName，其余为文本列；
      * - 解析失败返回错误信息并中止。
      */
+    /**
+     * @brief 解析 CSV 主流程（含统计）
+     * 处理：自动编码→逐行解析→跳过标题→构造 CsvRow→统计键频次与重复行。
+     */
     static QList<CsvRow> doParse(const QString &csvPath, QString &error, int &totalLines, int &nonEmptyLines, QMap<QString,int> &keyHist)
     {
         QList<CsvRow> rows;
@@ -254,12 +258,18 @@ namespace Csv
         return rows;
     }
 
+    /**
+     * @brief 解析 CSV 并返回行（不含统计报告）
+     */
     QList<CsvRow> parseFile(const QString &csvPath, QString &error)
     {
         int total = 0, nonEmpty = 0; QMap<QString,int> hist;
         return doParse(csvPath, error, total, nonEmpty, hist);
     }
 
+    /**
+     * @brief 解析 CSV 并返回行与统计报告
+     */
     QList<CsvRow> parseFileWithReport(const QString &csvPath, QString &error, CsvParseReport &report)
     {
         int total = 0, nonEmpty = 0; QMap<QString,int> hist;
