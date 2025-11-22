@@ -1,1 +1,3 @@
-﻿source_path,line_number,array_variable,text_cn,text_en,text_vn,text_ko,text_turkish,text_russian,text_spanish,text_pt,text_fa,text_jp,text_ar,text_other
+source_path,line_number,array_variable,text_cn,text_en,text_vn,text_ko,text_turkish,text_russian,text_spanish,text_pt,text_fa,text_jp,text_ar,text_other
+"e:\code\cpeject\test_mooc-clin\DirModeEx\tests\demo_proj\src\demo.c",123,"var_maxtx2[]","","","","","","","","","","","",""
+"e:\code\cpeject\test_mooc-clin\DirModeEx\tests\demo_proj\src\demo.c",125,"","示例1","Exam、、nple8","Exam4","Exam4","Exam4","","","","","","",""

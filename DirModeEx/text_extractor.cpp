@@ -742,23 +742,20 @@ bool writeArraysCsv(const QString &outputPath,
     auto isLiteral = [&](int idx){ return literalColumns.contains(langColumns.value(idx)); };
     for (const auto &arr : arrays)
     {
+        ts << '"' << arr.sourceFile << '"' << "," << '"' << QString::number(arr.lineNumber) << '"' << "," << '"' << arr.arrayName << "[]" << '"';
+        for (int c = 0; c < langColumns.size(); ++c)
+            ts << "," << '"' << '"';
+        ts << "\n";
         for (int i = 0; i < arr.elements.size(); ++i)
         {
             const QStringList &vals = arr.elements.at(i);
-            if (i == 0)
-            {
-                ts << '"' << arr.sourceFile << '"' << "," << '"' << QString::number(arr.lineNumber) << '"' << "," << '"' << arr.arrayName << "[]" << '"';
-            }
-            else
-            {
-                ts << ",," << '"' << arr.arrayName << "[]" << '"';
-            }
+            ts << ",," << '"' << '"';
             int colCount = langColumns.size();
             for (int c = 0; c < colCount; ++c)
             {
                 QString v = c < vals.size() ? vals.at(c) : QString();
                 QString w = v;
-                w.replace("\"", "\"\"");
+                w.replace(QLatin1Char('"'), QLatin1String("\"\""));
                 ts << "," << '"' << w << '"';
             }
             ts << "\n";

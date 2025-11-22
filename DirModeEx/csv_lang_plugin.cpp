@@ -150,19 +150,30 @@ static QString replaceInitializerBodyPreservingFormat(const QString &body,
                                                           const QStringList &csvValues,
                                                           const QMap<QString, int> &colMap)
     {
-        Q_UNUSED(structLangs);
-        Q_UNUSED(colMap);
-        QString out;
         QString indent = QStringLiteral("\n    ");
-        if (!csvValues.isEmpty())
+        int nl = body.indexOf(QLatin1Char('\n'));
+        if (nl >= 0)
         {
-            for (int i = 0; i < csvValues.size(); ++i)
-            {
-                QString esc = cEscape(csvValues.at(i));
-                out += indent + QStringLiteral("\"%1\",").arg(esc);
-            }
+            int i = nl + 1; int spaces = 0;
+            while (i < body.size() && (body.at(i) == QLatin1Char(' ') || body.at(i) == QLatin1Char('\t'))) { spaces++; i++; }
+            indent = QStringLiteral("\n") + QString(spaces, QLatin1Char(' '));
         }
-        out += QStringLiteral("\n ") + QStringLiteral("NULL");
+        bool hasTailNull = QRegularExpression(QStringLiteral("\n\s*NULL\s*$")).match(body.trimmed()).hasMatch();
+
+        int enIdx = colMap.value(QStringLiteral("en"), -1);
+        QString out;
+        for (int k = 0; k < structLangs.size(); ++k)
+        {
+            QString lang = structLangs.at(k);
+            int idx = colMap.value(lang, -1);
+            QString v = (idx >= 0 && idx < csvValues.size()) ? csvValues.at(idx) : QString();
+            if (v.isEmpty() && enIdx >= 0 && enIdx < csvValues.size())
+                v = csvValues.at(enIdx);
+            out += indent + QStringLiteral("\"%1\",").arg(cEscape(v));
+        }
+        out += indent + QStringLiteral("NULL");
+        if (!hasTailNull)
+            out += QStringLiteral("\n");
         return out;
     }
 
@@ -183,7 +194,7 @@ static QString buildArrayBody(const QString &origBody,
             indent = QStringLiteral("\n") + QString(spaces, QLatin1Char(' '));
         }
         bool hasTailNull = QRegularExpression(QStringLiteral("\n\s*NULL\s*$")).match(origBody.trimmed()).hasMatch();
-        int enIdx = colMap.value(QStringLiteral("en"), 1);
+        int enIdx = colMap.value(QStringLiteral("en"), -1);
         QString out;
         for (int k = 0; k < elements.size(); ++k)
         {
