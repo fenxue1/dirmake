@@ -111,14 +111,18 @@ const _Tr_TEXT var_simple11 = {
     NULL};
 
 // 结构体数组示例：用于测试数组提取与 CSV 导入
-static const _Tr_TEXT var_maxtx[] = {};
-
-static const _Tr_TEXT var_maxtx1[22321] = {
-    { "Exam4", "Exam4", "Exam4", "Exam、、nple8", "Exam4", NULL }
+static const _Tr_TEXT var_maxtx[] = {
+    { "var_maxtx1[]", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
 };
 
-static const _Tr_TEXT var_maxtx2[22322] = {
-   // { "中文1", "Exam4", "Exam4", "Exam4", "Exam、、nple8", "Exam4", NULL },
-{ "中文2", "Exam4", "Exam4", "Exam4", "Exam、、nple8", "Exam4", NULL },
-{ "中文3", "Exam4", "Exam4", "Exam4", "Exam、、nple8", "Exam4", NULL }
+static const _Tr_TEXT var_maxtx1[22321] = {
+    { "示例1", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL },
+    { "示例2", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL },
+    { "示例3", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL },
+    { "示例4", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
+};
+
+static const _Tr_TEXT var_maxtx3[22322] = {
+   { "中文2", "Exam4", "Exam4", "Exam4", "Exam、、nple8", "Exam4", NULL },
+   { "中文3", "Exam4", "Exam4", "Exam4", "Exam、、nple8", "Exam4", NULL }
 };

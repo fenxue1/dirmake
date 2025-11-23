@@ -175,6 +175,12 @@ QString generateCFromCsv(const QString &csvPath,
                          const QMap<QString, QPair<QString, QString>> &sourceMap,
                          const QString &sourceRoot);
 
-}
+// 扫描 DispMessageInfo 初始化，提取嵌套的 _Tr_TEXT 字段（_title/_info）
+QList<ExtractedBlock> scanDispMessageInfo(const QString &root,
+                                          const QStringList &extensions,
+                                          const QString &mode,
+                                          const QMap<QString, QString> &defines);
 
+}
 #endif // TEXT_EXTRACTOR_H
+

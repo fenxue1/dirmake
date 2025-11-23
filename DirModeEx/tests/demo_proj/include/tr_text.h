@@ -26,4 +26,11 @@ typedef struct {
     const char *text_ling; // 示例额外语言，默认标记“待翻译”
     const char *text_other; // 末尾哨兵字段（通常在初始化中写入 NULL）
 } _Tr_TEXT;
+
+typedef struct {
+    const int id;
+    const _Tr_TEXT _title;
+    const _Tr_TEXT _info;
+} DispMessageInfo;
+
 #endif

@@ -382,7 +382,7 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
         // 解析结构体单个初始化块，忽略数组声明
         // 步骤1：去除注释，使用正则一次性匹配完整声明与花括号体
         QString ncAll = stripComments(text);
-        QRegularExpression reFull(QStringLiteral("(?:(?:static|const)\s+)*(?:struct\s+)?%1(?:\s+\w+)*\s*(?:\*+)?\s+([A-Za-z_]\w*)\s*(?:\[[^\]]*\])?(?:\s+\w+)*\s*=\s*(?:&\s*\([^)]*\)\s*)?\{(.*?)\};").arg(QRegularExpression::escape(typeName)), QRegularExpression::DotMatchesEverythingOption);
+        QRegularExpression reFull(QStringLiteral("(?:(?:static|const)\\s+)*(?:struct\\s+)?%1(?:\\s+\\w+)*\\s*(?:\\*+)?\\s+([A-Za-z_]\\w*)\\s*(?:\\[[^\\]]*\\])?(?:\\s+\\w+)*\\s*=\\s*(?:&\\s*\\([^)]*\\)\\s*)?\\{(.*?)\\};").arg(QRegularExpression::escape(typeName)), QRegularExpression::DotMatchesEverythingOption);
         QRegularExpression reStringsFull(QStringLiteral("\"(?:\\.|[^\"\\])*\""));
         auto itFull = reFull.globalMatch(ncAll);
         QList<ExtractedBlock> fast;
@@ -402,7 +402,7 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
             QString var = m.captured(1);
             QString inner = m.captured(2);
             // 步骤2：剥离末尾 NULL 哨兵，以免将其计入语言值
-            int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\s,])(NULL|nullptr)(?:[\s,]|$)")));
+            int sentinelPos = inner.indexOf(QRegularExpression(QStringLiteral("(?:^|[\\s,])(NULL|nullptr)(?:[\\s,]|$)")));
             QString innerFor = sentinelPos > 0 ? inner.left(sentinelPos) : inner;
             QStringList strs;
             auto sit = reStringsFull.globalMatch(innerFor);
@@ -692,8 +692,8 @@ QList<ExtractedArray> scanDirectoryArrays(const QString &root, const QStringList
         {
             if (fi.isDir()) { stack << fi.absoluteFilePath(); continue; }
             if (!matchExt(fi.fileName())) continue;
-            QString text = readTextFile(fi.absoluteFilePath());
-            QString t = (mode == QLatin1String("effective")) ? preprocess(text, defines) : text;
+            QString text = TextExtractor::readTextFile(fi.absoluteFilePath());
+            QString t = (mode == QLatin1String("effective")) ? TextExtractor::preprocess(text, defines) : text;
             auto arrays = extractArrays(t, fi.absoluteFilePath(), typeName, preserveEscapes);
             if (arrays.isEmpty() && mode == QLatin1String("effective"))
             {
@@ -1560,3 +1560,143 @@ QString generateCFromCsv(const QString &csvPath,
  * 关键代码处已添加注释（编码保留、换行风格保留、CSV 转义等）。
  */
 #endif
+
+namespace TextExtractor
+{
+    static QStringList parseStringInitializer(const QString &block)
+    {
+        QStringList out;
+        QString cur;
+        bool inq = false;
+        for (int i = 0; i < block.size(); ++i)
+        {
+            QChar c = block[i];
+            if (inq)
+            {
+                if (c == QLatin1Char('"'))
+                {
+                    if (i + 1 < block.size() && block[i + 1] == QLatin1Char('"'))
+                    { cur.append('"'); ++i; }
+                    else { inq = false; out << cur; cur.clear(); }
+                }
+                else if (c == QLatin1Char('\\') && i + 1 < block.size() && block[i + 1] == QLatin1Char('"'))
+                { cur.append('"'); ++i; }
+                else { cur.append(c); }
+            }
+            else
+            {
+                if (c == QLatin1Char('"')) { inq = true; }
+            }
+        }
+        return out;
+    }
+
+    static bool findNthBraceBlock(const QString &body, int nth, int &startContent, int &endContent)
+    {
+        int level = 0;
+        int count = 0;
+        bool inq = false;
+        for (int i = 0; i < body.size(); ++i)
+        {
+            QChar c = body[i];
+            if (!inq && c == QLatin1Char('"')) { inq = true; continue; }
+            if (inq)
+            {
+                if (c == QLatin1Char('"'))
+                {
+                    if (i + 1 < body.size() && body[i + 1] == QLatin1Char('"')) { ++i; }
+                    else { inq = false; }
+                }
+                continue;
+            }
+            if (c == QLatin1Char('{'))
+            {
+                if (level == 0)
+                {
+                    ++count;
+                    if (count == nth)
+                    {
+                        startContent = i + 1;
+                        int j = i + 1; int inner = 1; bool inq2 = false;
+                        while (j < body.size())
+                        {
+                            QChar d = body[j];
+                            if (!inq2 && d == QLatin1Char('"')) { inq2 = true; ++j; continue; }
+                            if (inq2)
+                            {
+                                if (d == QLatin1Char('"'))
+                                {
+                                    if (j + 1 < body.size() && body[j + 1] == QLatin1Char('"')) { j += 2; continue; }
+                                    else { inq2 = false; ++j; continue; }
+                                }
+                                ++j; continue;
+                            }
+                            if (d == QLatin1Char('{')) { ++inner; }
+                            else if (d == QLatin1Char('}')) { --inner; if (inner == 0) { endContent = j; return true; } }
+                            ++j;
+                        }
+                        return false;
+                    }
+                }
+                ++level;
+            }
+            else if (c == QLatin1Char('}'))
+            {
+                --level;
+            }
+        }
+        return false;
+    }
+
+QList<ExtractedBlock> scanDispMessageInfo(const QString &root,
+                                          const QStringList &extensions,
+                                          const QString &mode,
+                                          const QMap<QString, QString> &defines)
+{
+    QList<ExtractedBlock> all;
+    QDir dir(root);
+    auto matchExt = [&](const QString &fn)
+    { for (const QString &e : extensions) if (fn.toLower().endsWith(e.toLower())) return true; return false; };
+    QList<QString> stack; stack << dir.absolutePath();
+    while (!stack.isEmpty())
+    {
+        QString path = stack.takeLast();
+        QDir d(path);
+        QFileInfoList infos = d.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QFileInfo &fi : infos)
+        {
+            if (fi.isDir()) { stack << fi.absoluteFilePath(); continue; }
+            if (!matchExt(fi.fileName())) continue;
+            QString text = TextExtractor::readTextFile(fi.absoluteFilePath());
+            QString t = (mode == QLatin1String("effective")) ? TextExtractor::preprocess(text, defines) : text;
+            QRegularExpression re(QStringLiteral(R"((?:static\s+)?(?:const\s+)?DispMessageInfo\s+(\w+)\s*=\s*\{(.*?)\};)"), QRegularExpression::DotMatchesEverythingOption);
+            auto it = re.globalMatch(t);
+            while (it.hasNext())
+            {
+                auto m = it.next();
+                QString var = m.captured(1);
+                QString declText = m.captured(0);
+                int startPosOrig = text.indexOf(declText);
+                int lineAt = (startPosOrig >= 0) ? (text.left(startPosOrig).count(QLatin1Char('\n')) + 1)
+                                                : (t.left(m.capturedStart(0)).count(QLatin1Char('\n')) + 1);
+                QString body = m.captured(2);
+                int s1 = -1, e1 = -1, s2 = -1, e2 = -1;
+                if (findNthBraceBlock(body, 1, s1, e1))
+                {
+                    QString inner = body.mid(s1, e1 - s1);
+                    ExtractedBlock b1; b1.variableName = var + QLatin1String("._title"); b1.sourceFile = fi.absoluteFilePath(); b1.lineNumber = lineAt; b1.strings = parseStringInitializer(inner);
+                    all.append(b1);
+                }
+                if (findNthBraceBlock(body, 2, s2, e2))
+                {
+                    QString inner2 = body.mid(s2, e2 - s2);
+                    ExtractedBlock b2; b2.variableName = var + QLatin1String("._info"); b2.sourceFile = fi.absoluteFilePath(); b2.lineNumber = lineAt; b2.strings = parseStringInitializer(inner2);
+                    all.append(b2);
+                }
+            }
+        }
+    }
+    return all;
+}
+
+} // namespace TextExtractor

@@ -358,7 +358,9 @@ void MainWindow::setupUiContent()
     m_extractChineseBtn = new QPushButton(QStringLiteral("一键提取中文"), exRow2);
     connect(m_extractChineseBtn, SIGNAL(clicked()), this, SLOT(onExtractChinese()));
     QPushButton *m_extractArraysBtn = new QPushButton(QStringLiteral("提取结构体数组"), exRow2);
+    QPushButton *m_readErrorsBtn = new QPushButton(QStringLiteral("读取报错"), exRow2);
     connect(m_extractArraysBtn, SIGNAL(clicked()), this, SLOT(onExtractArrays()));
+    connect(m_readErrorsBtn, SIGNAL(clicked()), this, SLOT(onReadErrors()));
     m_extractProgress = new QProgressBar(exRow2);
     m_extractProgress->setMinimum(0);
     m_extractProgress->setMaximum(100);
@@ -373,6 +375,7 @@ void MainWindow::setupUiContent()
     exH2->addWidget(m_extractRunBtn);
     exH2->addWidget(m_extractChineseBtn);
     exH2->addWidget(m_extractArraysBtn);
+    exH2->addWidget(m_readErrorsBtn);
     // 行3：保留原文语言列配置
     QWidget *exRow3 = new QWidget(extractBottom);
     QHBoxLayout *exH3 = new QHBoxLayout(exRow3);
@@ -439,6 +442,18 @@ void MainWindow::setupUiContent()
     genH2->addWidget(new QLabel(QStringLiteral("C 输出:")));
     genH2->addWidget(m_cOutputEdit, 1);
     genH2->addWidget(m_browseCOutBtn);
+    // 头文件输出路径
+    QWidget *genRow2b = new QWidget(genPage);
+    QHBoxLayout *genH2b = new QHBoxLayout(genRow2b);
+    m_headerOutputEdit = new QLineEdit(genPage);
+    m_browseHeaderOutBtn = new QPushButton(QStringLiteral("选择头文件输出..."), genPage);
+    connect(m_browseHeaderOutBtn, &QPushButton::clicked, this, [this]
+            {
+        QString f = QFileDialog::getSaveFileName(this, QStringLiteral("选择头文件输出"), QDir::homePath()+QStringLiteral("/generated_text_vars_dynamic.h"), QStringLiteral("Header (*.h)"));
+        if (!f.isEmpty()) m_headerOutputEdit->setText(f); });
+    genH2b->addWidget(new QLabel(QStringLiteral("头文件输出:")));
+    genH2b->addWidget(m_headerOutputEdit, 1);
+    genH2b->addWidget(m_browseHeaderOutBtn);
     // 生成选项行
     QWidget *genOpts1 = new QWidget(genPage);
     QHBoxLayout *genO1 = new QHBoxLayout(genOpts1);
@@ -492,6 +507,7 @@ void MainWindow::setupUiContent()
     genLayout->addWidget(genOpts1);
     genLayout->addWidget(genOpts2);
     genLayout->addWidget(genOpts3);
+    genLayout->addWidget(genRow2b);
     genLayout->addStretch();
     genLayout->addWidget(m_generateRunBtn);
     m_tabs->addTab(genPage, "从CSV生成C");
@@ -525,15 +541,18 @@ void MainWindow::setupUiContent()
     m_csvProgress->setValue(0);
     m_csvRunBtn = new QPushButton(QStringLiteral("执行导入"), csvRow3);
     m_csvRunArraysBtn = new QPushButton(QStringLiteral("仅导入结构体数组"), csvRow3);
+    QPushButton *m_csvRunErrorsBtn = new QPushButton(QStringLiteral("仅导入报错文本"), csvRow3);
     m_csvExportLogBtn = new QPushButton(QStringLiteral("导出日志"), csvRow3);
     connect(m_csvRunBtn, SIGNAL(clicked()), this, SLOT(onRunCsvImport()));
     connect(m_csvRunArraysBtn, SIGNAL(clicked()), this, SLOT(onRunArrayCsvImport()));
+    connect(m_csvRunErrorsBtn, SIGNAL(clicked()), this, SLOT(onRunErrorsCsvImport()));
     connect(m_csvExportLogBtn, SIGNAL(clicked()), this, SLOT(onExportCsvLog()));
     csvH3->addWidget(new QLabel(QStringLiteral("进度:")));
     csvH3->addWidget(m_csvProgress, 1);
     csvH3->addStretch();
     csvH3->addWidget(m_csvRunBtn);
     csvH3->addWidget(m_csvRunArraysBtn);
+    csvH3->addWidget(m_csvRunErrorsBtn);
     csvH3->addWidget(m_csvExportLogBtn);
     m_csvReportView = new QTextEdit(csvPage);
     m_csvReportView->setReadOnly(true);
@@ -1072,7 +1091,9 @@ void MainWindow::onGenerateRun()
         QMessageBox::warning(this, QStringLiteral("生成"), QStringLiteral("请选择或输入C输出文件路径。"));
         return;
     }
-    QString headerOut = QDir(qApp->applicationDirPath()).absoluteFilePath(QStringLiteral("../include/generated_text_vars_dynamic.h"));
+    QString headerOut = (m_headerOutputEdit && !m_headerOutputEdit->text().trimmed().isEmpty())
+                            ? m_headerOutputEdit->text().trimmed()
+                            : QDir(qApp->applicationDirPath()).absoluteFilePath(QStringLiteral("../include/generated_text_vars_dynamic.h"));
     log(QStringLiteral("[生成] CSV=%1, C=%2, 头文件=%3").arg(csv, outc, headerOut));
     const bool noStatic = m_genNoStatic && m_genNoStatic->isChecked();
     const bool regEmit = m_genEmitRegistry && m_genEmitRegistry->isChecked();
@@ -1115,6 +1136,39 @@ void MainWindow::onGenerateRun()
     else
     {
         QMessageBox::critical(this, QStringLiteral("生成失败"), QStringLiteral("生成内容为空，请检查CSV格式。"));
+    }
+}
+
+void MainWindow::onReadErrors()
+{
+    QString root = currentDirPath();
+    if (root.trimmed().isEmpty())
+    {
+        QMessageBox::warning(this, QStringLiteral("读取报错"), QStringLiteral("请先选择项目目录"));
+        return;
+    }
+    QString outCsv = QDir(root).absoluteFilePath(QStringLiteral("disp_errors.csv"));
+    QStringList exts = QStringList{QStringLiteral(".c"), QStringLiteral(".cpp"), QStringLiteral(".h"), QStringLiteral(".hpp")};
+    QMap<QString, QString> defines;
+    QString mode = QStringLiteral("effective");
+    log(QStringLiteral("[读取报错] 扫描 DispMessageInfo 并写入: %1").arg(outCsv));
+    QList<ExtractedBlock> rows = TextExtractor::scanDispMessageInfo(root, exts, mode, defines);
+    if (rows.isEmpty())
+    {
+        QMessageBox::information(this, QStringLiteral("读取报错"), QStringLiteral("未发现 DispMessageInfo 初始化"));
+        return;
+    }
+    QStringList langCols = TextExtractor::defaultLanguageColumns();
+    QStringList literalCols; literalCols << QStringLiteral("text_cn") << QStringLiteral("text_en");
+    bool ok = TextExtractor::writeCsv(outCsv, rows, langCols, literalCols, true);
+    if (ok)
+    {
+        QMessageBox::information(this, QStringLiteral("读取报错完成"), QStringLiteral("CSV 已生成：%1\n记录数：%2").arg(outCsv).arg(rows.size()));
+        QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(outCsv).dir().absolutePath()));
+    }
+    else
+    {
+        QMessageBox::critical(this, QStringLiteral("写入失败"), QStringLiteral("无法写入 CSV：%1").arg(outCsv));
     }
 }
 
@@ -1423,6 +1477,96 @@ void MainWindow::onRunArrayCsvImport()
         m_csvReportView->setPlainText(report);
         log(QStringLiteral("数组CSV导入完成：成功 %1 跳过 %2 失败 %3").arg(totals->totalSuccess).arg(totals->totalSkip).arg(totals->totalFail));
         m_csvRunArraysBtn->setEnabled(true);
+        watcher->deleteLater();
+    });
+    watcher->setFuture(fut);
+}
+
+void MainWindow::onRunErrorsCsvImport()
+{
+    QString root = m_csvProjEdit ? m_csvProjEdit->text().trimmed() : QString();
+    QString csvInput = m_csvFileEdit ? m_csvFileEdit->text().trimmed() : QString();
+    if (root.isEmpty() || csvInput.isEmpty())
+    {
+        QMessageBox::warning(this, QStringLiteral("提示"), QStringLiteral("请先选择项目根目录和CSV文件"));
+        return;
+    }
+    m_csvProgress->setValue(5);
+    QJsonObject cfg;
+    QJsonObject map;
+    map[QStringLiteral("cn")] = 0;
+    map[QStringLiteral("en")] = 1;
+    map[QStringLiteral("vn")] = 2;
+    map[QStringLiteral("ko")] = 3;
+    map[QStringLiteral("tr")] = 4;
+    map[QStringLiteral("ru")] = 5;
+    map[QStringLiteral("pt")] = 6;
+    map[QStringLiteral("es")] = 7;
+    map[QStringLiteral("fa")] = 8;
+    map[QStringLiteral("jp")] = 9;
+    map[QStringLiteral("ar")] = 10;
+    map[QStringLiteral("other")] = 11;
+    cfg[QStringLiteral("column_mapping")] = map;
+    cfg[QStringLiteral("dry_run")] = false;
+    cfg[QStringLiteral("strict_line_only")] = true;
+    cfg[QStringLiteral("line_window")] = 10;
+    cfg[QStringLiteral("ignore_variable_name")] = false;
+    cfg[QStringLiteral("disable_backups")] = true;
+    cfg[QStringLiteral("only_info")] = true;
+    cfg[QStringLiteral("annotate_mode")] = QStringLiteral("names");
+    // 可选：设置源文件过滤与行范围（当前选择）
+    // 如果用户在 IDE 中选定了某文件与行范围，可手动调整如下两项
+    // 这里预填 demo2.c 的路径与范围供你参考，如需修改请在 UI 更改 CSV 后再点击
+    QString demoPath = QDir(root).absoluteFilePath(QStringLiteral("tests/demo_proj/src/demo2.c"));
+    cfg[QStringLiteral("source_path_filter")] = demoPath;
+    cfg[QStringLiteral("line_start")] = 96;
+    cfg[QStringLiteral("line_end")] = 117;
+
+    QStringList csvFiles;
+    for (const QString &part : csvInput.split(QLatin1Char(';'), Qt::SkipEmptyParts))
+    {
+        QString f = part.trimmed();
+        if (!f.isEmpty()) csvFiles << f;
+    }
+
+    struct ImportTotals { int totalSuccess{0}; int totalSkip{0}; int totalFail{0}; QString lastLogPath; QString lastDiffPath; QString lastOutputDir; };
+    auto totals = std::make_shared<ImportTotals>();
+
+    m_csvRunBtn->setEnabled(false);
+    auto watcher = new QFutureWatcher<void>(this);
+    QFuture<void> fut = QtConcurrent::run([this, totals, root, csvFiles, cfg]() {
+        for (int i = 0; i < csvFiles.size(); ++i)
+        {
+            QFileInfo fi(csvFiles.at(i));
+            QString base = fi.completeBaseName();
+            QJsonObject cfgEach = cfg;
+            QString logsDir = QDir(root).absoluteFilePath(QStringLiteral("logs"));
+            QDir().mkpath(logsDir);
+            cfgEach[QStringLiteral("log_path")] = QDir(logsDir).absoluteFilePath(QStringLiteral("csv_lang_plugin_errors_%1.log").arg(base));
+            cfgEach[QStringLiteral("diff_path")] = QDir(logsDir).absoluteFilePath(QStringLiteral("csv_lang_plugin_errors_%1.diff").arg(base));
+
+            auto stats = CsvLangPlugin::applyTranslations(root, csvFiles.at(i), cfgEach);
+            totals->totalSuccess += stats.successCount;
+            totals->totalSkip += stats.skipCount;
+            totals->totalFail += stats.failCount;
+            totals->lastLogPath = stats.logPath;
+            totals->lastDiffPath = stats.diffPath;
+            totals->lastOutputDir = stats.outputDir;
+            int prog = 5 + ((i + 1) * 90) / qMax(1, csvFiles.size());
+            QMetaObject::invokeMethod(m_csvProgress, "setValue", Qt::QueuedConnection, Q_ARG(int, qMin(95, prog)));
+        }
+    });
+    connect(watcher, &QFutureWatcher<void>::finished, this, [this, totals, watcher]() {
+        m_csvProgress->setValue(100);
+        QString report = QString("仅导入报错文本\n成功: %1\n跳过: %2\n失败: %3\n日志: %4\n差异: %5")
+                             .arg(totals->totalSuccess)
+                             .arg(totals->totalSkip)
+                             .arg(totals->totalFail)
+                             .arg(totals->lastLogPath)
+                             .arg(totals->lastDiffPath);
+        m_csvReportView->setPlainText(report);
+        log(QStringLiteral("报错文本导入完成：成功 %1 跳过 %2 失败 %3").arg(totals->totalSuccess).arg(totals->totalSkip).arg(totals->totalFail));
+        m_csvRunBtn->setEnabled(true);
         watcher->deleteLater();
     });
     watcher->setFuture(fut);
