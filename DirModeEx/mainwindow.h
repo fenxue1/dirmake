@@ -132,6 +132,7 @@ private slots:
      * @brief 从 CSV 生成 C 代码与头文件（Generate C and header from CSV）
      */
     void onGenerateRun();
+    void onReadErrors();
 
 private:
     Ui::MainWindow *ui;
@@ -201,8 +202,10 @@ private:
     // 从CSV生成C页控件
     QLineEdit *m_csvInputEdit{nullptr};
     QLineEdit *m_cOutputEdit{nullptr};
+    QLineEdit *m_headerOutputEdit{nullptr};
     QPushButton *m_browseCsvBtn{nullptr};
     QPushButton *m_browseCOutBtn{nullptr};
+    QPushButton *m_browseHeaderOutBtn{nullptr};
     QPushButton *m_generateRunBtn{nullptr};
     // 生成选项
     QCheckBox *m_genNoStatic{nullptr};
@@ -279,6 +282,7 @@ private slots:
      */
     void onRunCsvImport();
     void onRunArrayCsvImport();
+    void onRunErrorsCsvImport();
     /**
      * @brief 导出 CSV 导入报告日志（Export CSV import report log）
      */

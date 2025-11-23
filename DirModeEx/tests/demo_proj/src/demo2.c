@@ -2,12 +2,13 @@
  * @Author: fenxue1 1803651830@qq.com
  * @Date: 2025-11-17 20:00:40
  * @LastEditors: fenxue1 1803651830@qq.com
- * @LastEditTime: 2025-11-19 21:16:32
+ * @LastEditTime: 2025-11-23 22:29:40
  * @FilePath: \DirModeEx\tests\demo_proj\src\demo2.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+
+
  */
-
-
+#define test_def_error (1)
 
 #include "../include/tr_text.h"
 
@@ -53,3 +54,108 @@ const _Tr_TEXT var_simple4 = {
     "\x45\x78\x61\x6D\x70\x6C\x65",
     "Example",
  NULL};
+
+
+ static const _Tr_TEXT var_maxtx1[22321] = {
+    { "示例1", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL },
+    { "示例2", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL },
+    { "示例3", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL },
+    { "示例4", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
+};
+
+
+int id_evnet = 1;
+
+ static const DispMessageInfo _disp_message_info1 = {
+    
+    id_evnet,
+    {
+#if(test_def_error == 1)   
+        "22222测试",
+        "Exam4",
+        "Exam、、nple8",
+        "Exam4",
+        "Exam4",
+        "Exam4",
+#else      
+        "标题1111",
+        "Exam4",
+        "Exam、、nple8",
+        "Exam4",
+        "Exam4",
+        "Exam4",
+#endif        
+        NULL
+    },
+    {
+        "显示的信息",
+        "示例4",
+        "Exam、、nple8",
+        "Exam4",
+        "Exam4",
+        "Exam4",
+        NULL
+    }
+
+ };
+
+
+ static const DispMessageInfo _disp_message_info2 = {
+    id_evnet,
+    {
+        "标题1111",
+        "Exam4",
+        "Exam、、nple8",
+        "Exam4",
+        "Exam4",
+        "Exam4",
+        NULL
+    },
+    {
+        "测试111",
+        "测试112",
+        "测试113",
+        "测试114",
+        "测试112",
+        "测试112",
+        "测试112",
+        "测试117",
+        "测试119",
+        "测试120",
+        "测试121",
+        "测试122",
+        NULL
+}
+
+ };
+
+
+
+  static const DispMessageInfo _disp_message_info3 = {
+    id_evnet,
+    {
+        "标题1111",
+        "Exam4",
+        "Exam、、nple8",
+        "Exam4",
+        "Exam4",
+        "Exam4",
+        NULL
+    },
+    {
+        "显示的信息",
+        "示例4",
+        "string1",
+        "string2",
+        "示例4",
+        "示例4",
+        "示例4",
+        "示例4",
+        "string7",
+        "string8",
+        "string9",
+        "string10",
+        NULL
+}
+
+ };

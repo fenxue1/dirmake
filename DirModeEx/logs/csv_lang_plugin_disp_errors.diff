@@ -1,0 +1,34 @@
+--- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
++++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+@@ -73,1 +73,1 @@
+-        "标题1111",
++        "Exam4",
+         "Exam4",
+-        "Exam、、nple8",
++        "Exam4",
+@@ -80,0 +80,0 @@
+-    },
++},
+     {
+--- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
++++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+@@ -82,4 +82,4 @@
+-        "显示的信息",
++        "示例4",
+         "示例4",
+-        "Exam、、nple8",
++        "示例4",
+-        "Exam4",
++        "示例4",
+-        "Exam4",
++        "示例4",
+-        "Exam4",
++        "示例4",
+@@ -89,0 +89,0 @@
+-    }
++}
+ 
+--- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
++++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
+--- E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c
++++ E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c

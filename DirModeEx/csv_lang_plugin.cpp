@@ -92,6 +92,61 @@ static QStringList discoverLangOrder(const QString &root, const QString &alias)
         return TextExtractor::discoverLanguageColumns(root, QStringList{QStringLiteral(".h"), QStringLiteral(".hpp"), QStringLiteral(".c"), QStringLiteral(".cpp")}, alias);
     }
 
+static bool findNthBraceBlock(const QString &body, int nth, int &startContent, int &endContent)
+    {
+        int level = 0; int count = 0; bool inq = false;
+        for (int i = 0; i < body.size(); ++i)
+        {
+            QChar c = body[i];
+            if (!inq && c == QLatin1Char('"')) { inq = true; continue; }
+            if (inq)
+            {
+                if (c == QLatin1Char('"'))
+                {
+                    if (i + 1 < body.size() && body[i + 1] == QLatin1Char('"')) { ++i; }
+                    else { inq = false; }
+                }
+                continue;
+            }
+            if (c == QLatin1Char('{'))
+            {
+                if (level == 0)
+                {
+                    ++count;
+                    if (count == nth)
+                    {
+                        startContent = i + 1;
+                        int j = i + 1; int inner = 1; bool inq2 = false;
+                        while (j < body.size())
+                        {
+                            QChar d = body[j];
+                            if (!inq2 && d == QLatin1Char('"')) { inq2 = true; ++j; continue; }
+                            if (inq2)
+                            {
+                                if (d == QLatin1Char('"'))
+                                {
+                                    if (j + 1 < body.size() && body[j + 1] == QLatin1Char('"')) { j += 2; continue; }
+                                    else { inq2 = false; ++j; continue; }
+                                }
+                                ++j; continue;
+                            }
+                            if (d == QLatin1Char('{')) { ++inner; }
+                            else if (d == QLatin1Char('}')) { --inner; if (inner == 0) { endContent = j; return true; } }
+                            ++j;
+                        }
+                        return false;
+                    }
+                }
+                ++level;
+            }
+            else if (c == QLatin1Char('}'))
+            {
+                --level;
+            }
+        }
+        return false;
+    }
+
 /**
  * @brief 解析 CSV 行（简版，支持双引号与转义）
  */
@@ -148,21 +203,39 @@ static QString cEscape(const QString &s)
 static QString replaceInitializerBodyPreservingFormat(const QString &body,
                                                           const QStringList &structLangs,
                                                           const QStringList &csvValues,
-                                                          const QMap<QString, int> &colMap)
+                                                          const QMap<QString, int> &colMap,
+                                                          const QString &annotateMode)
     {
-        Q_UNUSED(structLangs);
-        Q_UNUSED(colMap);
-        QString out;
         QString indent = QStringLiteral("\n    ");
-        if (!csvValues.isEmpty())
+        int nl = body.indexOf(QLatin1Char('\n'));
+        if (nl >= 0)
         {
-            for (int i = 0; i < csvValues.size(); ++i)
-            {
-                QString esc = cEscape(csvValues.at(i));
-                out += indent + QStringLiteral("\"%1\",").arg(esc);
-            }
+            int i = nl + 1; int spaces = 0;
+            while (i < body.size() && (body.at(i) == QLatin1Char(' ') || body.at(i) == QLatin1Char('\t'))) { spaces++; i++; }
+            indent = QStringLiteral("\n") + QString(spaces, QLatin1Char(' '));
         }
-        out += QStringLiteral("\n ") + QStringLiteral("NULL");
+        bool hasTailNull = QRegularExpression(QStringLiteral("\n\s*NULL\s*$")).match(body.trimmed()).hasMatch();
+
+        int enIdx = colMap.value(QStringLiteral("en"), -1);
+        QString out;
+        for (int k = 0; k < structLangs.size(); ++k)
+        {
+            QString lang = structLangs.at(k);
+            int idx = colMap.value(lang, -1);
+            QString v = (idx >= 0 && idx < csvValues.size()) ? csvValues.at(idx) : QString();
+            if (v.isEmpty() && enIdx >= 0 && enIdx < csvValues.size())
+                v = csvValues.at(enIdx);
+            QString tail;
+            if (annotateMode == QStringLiteral("names")) tail = QStringLiteral(" // %1").arg(lang);
+            else if (annotateMode == QStringLiteral("indices")) tail = QStringLiteral(" // [%1]").arg(k);
+            out += indent + QStringLiteral("\"%1\",%2").arg(cEscape(v), tail);
+        }
+        QString sentinelTail;
+        if (annotateMode == QStringLiteral("names")) sentinelTail = QStringLiteral(" // sentinel");
+        else if (annotateMode == QStringLiteral("indices")) sentinelTail = QStringLiteral(" // [sentinel]");
+        out += indent + QStringLiteral("NULL%1").arg(sentinelTail);
+        if (!hasTailNull)
+            out += QStringLiteral("\n");
         return out;
     }
 
@@ -183,7 +256,7 @@ static QString buildArrayBody(const QString &origBody,
             indent = QStringLiteral("\n") + QString(spaces, QLatin1Char(' '));
         }
         bool hasTailNull = QRegularExpression(QStringLiteral("\n\s*NULL\s*$")).match(origBody.trimmed()).hasMatch();
-        int enIdx = colMap.value(QStringLiteral("en"), 1);
+        int enIdx = colMap.value(QStringLiteral("en"), -1);
         QString out;
         for (int k = 0; k < elements.size(); ++k)
         {
@@ -300,6 +373,12 @@ CsvProcessStats applyTranslations(const QString &projectRoot,
         bool strictLineOnly = config.value(QStringLiteral("strict_line_only")).toBool();
         int lineWindow = config.value(QStringLiteral("line_window")).toInt();
         bool ignoreVarNameDefault = config.value(QStringLiteral("ignore_variable_name")).toBool();
+        QString annotateMode = config.value(QStringLiteral("annotate_mode")).toString();
+        if (annotateMode.isEmpty()) annotateMode = QStringLiteral("none");
+        bool onlyInfo = config.value(QStringLiteral("only_info")).toBool();
+        QString sourcePathFilter = config.value(QStringLiteral("source_path_filter")).toString();
+        int filterLineStart = config.value(QStringLiteral("line_start")).toInt();
+        int filterLineEnd = config.value(QStringLiteral("line_end")).toInt();
         if (lineWindow <= 0) lineWindow = 50;
         QJsonObject mapObj = config.value(QStringLiteral("column_mapping")).toObject();
         QMap<QString, int> colMap;
@@ -339,6 +418,80 @@ CsvProcessStats applyTranslations(const QString &projectRoot,
         while (iRow < rows.size())
         {
             const CsvRow &r = rows.at(iRow);
+            QRegularExpression reNested(QStringLiteral(R"(^([A-Za-z_]\w*)\._(title|info)$)"));
+            auto nestedMatch = reNested.match(r.variableName);
+            if (nestedMatch.hasMatch())
+            {
+                QString baseVar = nestedMatch.captured(1);
+                QString which = nestedMatch.captured(2);
+                if (onlyInfo && which != QStringLiteral("info")) { iRow++; continue; }
+                QString absPath = r.sourcePath;
+                if (QDir::isRelativePath(absPath))
+                    absPath = QDir(projectRoot).absoluteFilePath(absPath);
+                if (!sourcePathFilter.isEmpty())
+                {
+                    QString normRow = QDir::fromNativeSeparators(absPath);
+                    QString normFilter = QDir::fromNativeSeparators(sourcePathFilter);
+                    if (!normRow.endsWith(normFilter) && normRow != normFilter)
+                    { iRow++; continue; }
+                }
+                QFileInfo fi(absPath);
+                if (!fi.exists() || !fi.isFile())
+                {
+                    stats.failedFiles << absPath; stats.failCount++;
+                    iRow++; continue;
+                }
+                QString codec; bool bom = false; QFile f(absPath);
+                if (!f.open(QIODevice::ReadOnly)) { stats.failedFiles << absPath; stats.failCount++; iRow++; continue; }
+                f.close();
+                QString text = readFileAutoCodec(absPath, codec, bom);
+                QRegularExpression reOuter(QStringLiteral(R"((?:static\s+)?(?:const\s+)?DispMessageInfo\s+%1\s*=\s*\{(.*?)\};)" ).arg(QRegularExpression::escape(baseVar)), QRegularExpression::DotMatchesEverythingOption);
+                auto m = reOuter.match(text);
+                if (!m.hasMatch()) { stats.skippedFiles << absPath; stats.skipCount++; iRow++; continue; }
+                int declPos = m.capturedStart(0);
+                int declLine = text.left(declPos).count(QLatin1Char('\n')) + 1;
+                if (strictLineOnly)
+                {
+                    int anchor = declLine;
+                    Q_UNUSED(anchor);
+                }
+                if (filterLineStart > 0 && filterLineEnd > 0)
+                {
+                    if (!(declLine >= filterLineStart && declLine <= filterLineEnd))
+                    { iRow++; continue; }
+                }
+                int sBody = m.capturedStart(1);
+                int eBody = m.capturedEnd(1);
+                QString body = text.mid(sBody, eBody - sBody);
+                int s1=-1,e1=-1,s2=-1,e2=-1;
+                if (!findNthBraceBlock(body, 1, s1, e1)) { stats.skippedFiles << absPath; stats.skipCount++; iRow++; continue; }
+                if (!findNthBraceBlock(body, 2, s2, e2)) { stats.skippedFiles << absPath; stats.skipCount++; iRow++; continue; }
+                int contentStart = (which == QStringLiteral("title")) ? s1 : s2;
+                int contentEnd   = (which == QStringLiteral("title")) ? e1 : e2;
+                QString inner = body.mid(contentStart, contentEnd - contentStart);
+                QRegularExpression reQuoted(QStringLiteral("\"(?:\\.|[^\"\\])*\""));
+                int present = 0; auto qi = reQuoted.globalMatch(inner); while (qi.hasNext()) { qi.next(); ++present; }
+                QStringList structLangs = TextExtractor::defaultLanguageColumns();
+                if (present > 0 && present < structLangs.size())
+                    structLangs = structLangs.mid(0, present);
+                QString newInner = replaceInitializerBodyPreservingFormat(inner, structLangs, r.values, colMap, annotateMode);
+                QString newBody = body;
+                newBody.replace(contentStart, contentEnd - contentStart, newInner);
+                QString before = text; QString after = text;
+                after.replace(sBody, eBody - sBody, newBody);
+                diffOut << DiffUtils::unifiedDiff(absPath, before, after);
+                QMutexLocker writeLock(&gFileWriteMutex);
+                QFile wf(absPath);
+                if (wf.open(QIODevice::WriteOnly | QIODevice::Truncate))
+                {
+                    if (bom && codec == QStringLiteral("UTF-8")) wf.write("\xEF\xBB\xBF");
+                    QTextStream wr(&wf); wr.setCodec(codec.toUtf8().constData()); wr << after; wf.close();
+                    stats.successFiles << absPath; stats.successCount++;
+                }
+                else { stats.failedFiles << absPath; stats.failCount++; }
+                iRow++;
+                continue;
+            }
             QString absPath = r.sourcePath;
             if (QDir::isRelativePath(absPath))
                 absPath = QDir(projectRoot).absoluteFilePath(absPath);
@@ -587,7 +740,7 @@ CsvProcessStats applyTranslations(const QString &projectRoot,
 
             QString before = text;
             QString body = text.mid(bestStart, bestEnd - bestStart);
-            QString newBody = replaceInitializerBodyPreservingFormat(body, structLangs, r.values, colMap);
+            QString newBody = replaceInitializerBodyPreservingFormat(body, structLangs, r.values, colMap, annotateMode);
             QString after = text;
             after.replace(bestStart, bestEnd - bestStart, newBody);
 
