@@ -153,7 +153,46 @@ MainWindow::MainWindow(QWidget *parent)
                     log(QStringLiteral("[筛选] 中文筛选完成，保留块数=%1").arg(m_lastFilteredBlocks));
                 }
 
-                // 3) 写入 CSV 文件（包含头、UTF-8 BOM、列处理）
+                {
+                    QFileInfo fi(m_extractOutCsv);
+                    QString transCsv = fi.dir().absoluteFilePath(QStringLiteral("ty_text_cn.csv"));
+                    QString err;
+                    QList<CsvRow> trs = Csv::parseFile(transCsv, err);
+                    if (err.isEmpty() && !trs.isEmpty())
+                    {
+                        QMap<QString, CsvRow> idx;
+                        auto norm = [](const QString &p){ return QDir::fromNativeSeparators(p).toLower(); };
+                        for (const auto &r : trs)
+                        {
+                            QString key = norm(r.sourcePath) + QStringLiteral("|") + r.variableName.toLower();
+                            idx.insert(key, r);
+                        }
+                        for (auto &r : all)
+                        {
+                            QString key = norm(r.sourceFile) + QStringLiteral("|") + r.variableName.toLower();
+                            if (idx.contains(key))
+                            {
+                                const CsvRow &cr = idx.value(key);
+                                if (!m_extractLangCols.isEmpty())
+                                {
+                                    int need = m_extractLangCols.size();
+                                    while (r.strings.size() < need)
+                                        r.strings.append(QString());
+                                    for (int i = 0; i < need; ++i)
+                                    {
+                                        if (i < cr.values.size())
+                                        {
+                                            const QString &v = cr.values.at(i);
+                                            if (!v.isEmpty())
+                                                r.strings[i] = v;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 log(QStringLiteral("[写入] 写入CSV：%1（列=%2；直写列=%3；替换英文逗号=%4）")
                         .arg(m_extractOutCsv)
                         .arg(m_extractLangCols.join(QStringLiteral(", ")))
@@ -167,61 +206,29 @@ MainWindow::MainWindow(QWidget *parent)
                 if (m_extractProgress)
                     m_extractProgress->setValue(m_extractProgress->maximum());
 
-                // 5) 结果提示：根据是否中文模式显示不同统计
                 if (ok)
                 {
+                    int preview = qMin(5, all.size());
+                    for (int i = 0; i < preview; ++i)
+                    {
+                        const auto &r = all.at(i);
+                        QString first = r.strings.isEmpty() ? QStringLiteral("(empty)") : r.strings.first();
+                        log(QStringLiteral("[预览] %1:%2 %3 -> %4").arg(QFileInfo(r.sourceFile).fileName()).arg(r.lineNumber).arg(r.variableName).arg(first));
+                    }
                     if (m_extractChineseOnly)
-                    {
-                        QFileInfo fi(m_extractOutCsv);
-                        QDir outDir = fi.dir();
-                        QString base = fi.completeBaseName();
-                        QStringList parts = outDir.entryList(QStringList{QString("%1_part*.csv").arg(base)}, QDir::Files, QDir::Name);
-                        if (!parts.isEmpty())
-                        {
-                            log(QStringLiteral("中文提取完成：已分片 %1 个文件，目录=%2").arg(parts.size()).arg(outDir.absolutePath()));
-                            QMessageBox::information(this, QStringLiteral("中文提取完成"), QStringLiteral("CSV 已分片为 %1 个文件，目录：%2\n中文条目数：%3\n原始块数：%4")
-                                                         .arg(parts.size())
-                                                         .arg(outDir.absolutePath())
-                                                         .arg(all.size())
-                                                         .arg(m_lastTotalBlocks));
-                        }
-                        else
-                        {
-                            log(QStringLiteral("中文提取完成：%1，共 %2 项").arg(m_extractOutCsv).arg(all.size()));
-                            QMessageBox::information(this, QStringLiteral("中文提取完成"), QStringLiteral("CSV 已生成：%1\n中文条目数：%2\n原始块数：%3")
-                                                         .arg(m_extractOutCsv)
-                                                         .arg(all.size())
-                                                         .arg(m_lastTotalBlocks));
-                        }
-                        QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(m_extractOutCsv).dir().absolutePath()));
-                    }
+                        QMessageBox::information(this, QStringLiteral("中文提取完成"), QStringLiteral("CSV 已生成：%1\n中文条目数：%2\n原始块数：%3")
+                                                             .arg(m_extractOutCsv)
+                                                             .arg(all.size())
+                                                             .arg(m_lastTotalBlocks));
                     else
-                    {
-                        QFileInfo fi(m_extractOutCsv);
-                        QDir outDir = fi.dir();
-                        QString base = fi.completeBaseName();
-                        QStringList parts = outDir.entryList(QStringList{QString("%1_part*.csv").arg(base)}, QDir::Files, QDir::Name);
-                        if (!parts.isEmpty())
-                        {
-                            log(QStringLiteral("提取完成：已分片 %1 个文件，目录=%2").arg(parts.size()).arg(outDir.absolutePath()));
-                            QMessageBox::information(this, QStringLiteral("提取完成"), QStringLiteral("CSV 已分片为 %1 个文件，目录：%2\n共提取 %3 项")
-                                                         .arg(parts.size())
-                                                         .arg(outDir.absolutePath())
-                                                         .arg(all.size()));
-                        }
-                        else
-                        {
-                            log(QStringLiteral("提取完成：%1，共 %2 项").arg(m_extractOutCsv).arg(all.size()));
-                            QMessageBox::information(this, QStringLiteral("提取完成"), QStringLiteral("CSV 已生成：%1\n共提取 %2 项")
-                                                         .arg(m_extractOutCsv)
-                                                         .arg(all.size()));
-                        }
-                        QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(m_extractOutCsv).dir().absolutePath()));
-                    }
+                        QMessageBox::information(this, QStringLiteral("提取完成"), QStringLiteral("CSV 已生成：%1\n共提取 %2 项")
+                                                             .arg(m_extractOutCsv)
+                                                             .arg(all.size()));
+                    QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(m_extractOutCsv).dir().absolutePath()));
                 }
                 else
                 {
-                    QMessageBox::critical(this, QStringLiteral("提取失败"), QStringLiteral("写入CSV失败，请检查路径权限。"));
+                    QMessageBox::critical(this, QStringLiteral("提取失败"), QStringLiteral("处理失败"));
                 }
             });
     setupUiContent();
@@ -782,16 +789,18 @@ void MainWindow::onExtractRun()
 {
     // 入口：普通提取（非中文专用）。逐步输出，帮助新手理解流程。
     const QString dir = m_pathEdit ? m_pathEdit->text() : QString();          // 当前目录输入框内容
+    QFileInfo dfi(dir);
+    const QString realDir = dfi.isFile() ? dfi.dir().absolutePath() : dir;    // 若输入为文件路径，改为其所在目录
     const QString type = m_extractTypeCombo ? m_extractTypeCombo->currentText() : QString(); // 结构体类型选择（可选）
     const bool keepEsc = m_extractKeepEscapes && m_extractKeepEscapes->isChecked(); // 是否保留字符串中的转义符
-    if (dir.isEmpty())
+    if (realDir.isEmpty() || !QDir(realDir).exists())
     {
-        QMessageBox::warning(this, QStringLiteral("提取"), QStringLiteral("请选择或输入项目根目录。"));
+        QMessageBox::warning(this, QStringLiteral("提取"), QStringLiteral("请选择或输入有效的项目目录。"));
         return;
     }
-    const QString outCsv = QDir(dir).absoluteFilePath(QStringLiteral("ty_text_out.csv")); // 输出文件名（常规）
+    const QString outCsv = QDir(realDir).absoluteFilePath(QStringLiteral("ty_text_out.csv")); // 输出文件名（常规）
     const QString mode = m_extractModeCombo ? m_extractModeCombo->currentText() : QStringLiteral("effective"); // 解析模式（effective/everything）
-    log(QStringLiteral("[提取] 目录=%1, 输出=%2, 模式=%3, 保留转义=%4").arg(dir, outCsv, mode).arg(keepEsc ? QStringLiteral("是") : QStringLiteral("否")));
+    log(QStringLiteral("[提取] 目录=%1, 输出=%2, 模式=%3, 保留转义=%4").arg(realDir, outCsv, mode).arg(keepEsc ? QStringLiteral("是") : QStringLiteral("否")));
     // 扩展名
     QStringList exts;
     if (m_extractExtsEdit && !m_extractExtsEdit->text().trimmed().isEmpty())
@@ -827,7 +836,7 @@ void MainWindow::onExtractRun()
     if (!defines.isEmpty())
         log(QStringLiteral("[提取] 宏定义：%1").arg(QStringList(defines.keys()).join(QStringLiteral(", "))));
     const QString typeName = "_Tr_TEXT";
-    QStringList langCols = TextExtractor::discoverLanguageColumns(dir, exts, typeName); // 自动发现项目中的语言列
+    QStringList langCols = TextExtractor::discoverLanguageColumns(realDir, exts, typeName); // 自动发现项目中的语言列
     log(QStringLiteral("[提取] 发现语言列：%1").arg(langCols.join(QStringLiteral(", "))));
     // 按需：保留原文语言列（可配置），其余写为UTF-8十六进制转义
     QStringList literalCols;
@@ -867,7 +876,7 @@ void MainWindow::onExtractRun()
     log(QStringLiteral("[提取] 直写列（不转义）：%1").arg(literalCols.join(QStringLiteral(", "))));
     // 收集文件列表
     QStringList files;
-    QDirIterator it(dir, QDir::Files, QDirIterator::Subdirectories);
+    QDirIterator it(realDir, QDir::Files, QDirIterator::Subdirectories);
     auto matchExt = [&](const QString &fn)
     { for (const QString &e : exts) if (fn.toLower().endsWith(e.toLower())) return true; return false; };
     while (it.hasNext())
@@ -916,13 +925,15 @@ void MainWindow::onExtractChinese()
 {
     // 入口：一键提取中文。逐步输出，帮助新手理解流程。
     const QString dir = m_pathEdit ? m_pathEdit->text() : QString();          // 当前目录
+    QFileInfo dfi(dir);
+    const QString realDir = dfi.isFile() ? dfi.dir().absolutePath() : dir;    // 若输入为文件路径，改为其所在目录
     const bool keepEsc = m_extractKeepEscapes && m_extractKeepEscapes->isChecked(); // 保留转义符
-    if (dir.isEmpty())
+    if (realDir.isEmpty() || !QDir(realDir).exists())
     {
-        QMessageBox::warning(this, QStringLiteral("提取"), QStringLiteral("请选择或输入项目根目录。"));
+        QMessageBox::warning(this, QStringLiteral("提取"), QStringLiteral("请选择或输入有效的项目目录。"));
         return;
     }
-    const QString outCsv = QDir(dir).absoluteFilePath(QStringLiteral("ty_text_cn.csv")); // 输出中文专用文件
+    const QString outCsv = QDir(realDir).absoluteFilePath(QStringLiteral("ty_text_cn.csv")); // 输出中文专用文件
     const QString mode = m_extractModeCombo ? m_extractModeCombo->currentText() : QStringLiteral("effective"); // 解析模式
     log(QStringLiteral("[中文提取] 目录=%1, 输出=%2, 模式=%3, 保留转义=%4").arg(dir, outCsv, mode).arg(keepEsc ? QStringLiteral("是") : QStringLiteral("否")));
     // 扩展名
@@ -951,7 +962,7 @@ void MainWindow::onExtractChinese()
     if (!defines.isEmpty())
         log(QStringLiteral("[中文提取] 宏定义：%1").arg(QStringList(defines.keys()).join(QStringLiteral(", "))));
     const QString typeName = "_Tr_TEXT";
-    QStringList langCols = TextExtractor::discoverLanguageColumns(dir, exts, typeName); // 自动发现语言列
+    QStringList langCols = TextExtractor::discoverLanguageColumns(realDir, exts, typeName); // 自动发现语言列
     log(QStringLiteral("[中文提取] 发现语言列：%1").arg(langCols.join(QStringLiteral(", "))));
     // 仅保留中文列直写，其余写为十六进制；如果未发现中文列，回退为 text_cn
     QStringList literalCols;
@@ -964,7 +975,7 @@ void MainWindow::onExtractChinese()
     log(QStringLiteral("[中文提取] 中文直写列：%1").arg(literalCols.join(QStringLiteral(", "))));
     // 收集文件
     QStringList files;
-    QDirIterator it(dir, QDir::Files, QDirIterator::Subdirectories);
+    QDirIterator it(realDir, QDir::Files, QDirIterator::Subdirectories);
     auto matchExt = [&](const QString &fn)
     { for (const QString &e : exts) if (fn.toLower().endsWith(e.toLower())) return true; return false; };
     while (it.hasNext())
@@ -1055,9 +1066,9 @@ void MainWindow::onExtractArrays()
     auto watcher = new QFutureWatcher<QList<ExtractedArray>>(this);
     connect(watcher, &QFutureWatcher<QList<ExtractedArray>>::finished, this, [this, watcher, outCsv, langCols, literalCols]() {
         QList<ExtractedArray> arrays = watcher->result();
-        bool ok = TextExtractor::writeArraysCsv(outCsv, arrays, langCols, literalCols, m_extractReplaceComma && m_extractReplaceComma->isChecked());
         QApplication::restoreOverrideCursor();
         statusBar()->clearMessage();
+        bool ok = TextExtractor::writeArraysCsv(outCsv, arrays, langCols, literalCols, m_extractReplaceComma && m_extractReplaceComma->isChecked());
         if (ok)
         {
             log(QStringLiteral("数组提取完成：%1，数组数=%2").arg(outCsv).arg(arrays.size()));
@@ -1158,7 +1169,10 @@ void MainWindow::onReadErrors()
         QMessageBox::information(this, QStringLiteral("读取报错"), QStringLiteral("未发现 DispMessageInfo 初始化"));
         return;
     }
-    QStringList langCols = TextExtractor::defaultLanguageColumns();
+    QString typeName = QStringLiteral("_Tr_TEXT");
+    QStringList langCols = TextExtractor::discoverLanguageColumns(root, exts, typeName);
+    if (langCols.isEmpty())
+        langCols = TextExtractor::defaultLanguageColumns();
     QStringList literalCols; literalCols << QStringLiteral("text_cn") << QStringLiteral("text_en");
     bool ok = TextExtractor::writeCsv(outCsv, rows, langCols, literalCols, true);
     if (ok)

@@ -418,10 +418,8 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
                                                 : (ncAll.left(startPos).count(QLatin1Char('\n')) + 1);
             fast.append({var, strs, sourceFile, finalLine});
         }
-        if (!fast.isEmpty())
-            return fast;
-        // 兼容性回退：逐行扫描以适配不规则格式或换行
-        QList<ExtractedBlock> results;
+        // 兼容性回退：逐行扫描以适配不规则格式或换行（与 fast 合并）
+        QList<ExtractedBlock> results = fast;
         QStringList lines = text.split(QLatin1Char('\n'));
         // 允许类型名与变量名之间的附加限定词（如 PROGMEM），以及指针/数组声明
         QRegularExpression reStart(QStringLiteral("(?:(?:static|const)\\s+)*(?:struct\\s+)?%1(?:\\s+\\w+)*\\s*(?:\\*+)?\\s+([A-Za-z_]\\w*)\\s*(?:\\[[^\\]]*\\])?(?:\\s+\\w+)*\\s*=\\s*").arg(QRegularExpression::escape(typeName)));
@@ -534,8 +532,13 @@ QList<ExtractedBlock> extractBlocks(const QString &text, const QString &sourceFi
                 strs << decoded;
             }
             int finalLine = (bodyStartLine > 0) ? bodyStartLine : declLine;
-            // 步骤7：记录变量名、解析后字符串与首行行号
-            results.append({var, strs, sourceFile, finalLine});
+            bool exists = false;
+            for (const auto &e : results)
+            {
+                if (e.variableName == var && e.sourceFile == sourceFile && e.lineNumber == finalLine) { exists = true; break; }
+            }
+            if (!exists)
+                results.append({var, strs, sourceFile, finalLine});
         }
     }
     return results;
@@ -790,6 +793,20 @@ bool writeArraysCsv(const QString &outputPath,
                 QString text = readTextFile(fi.absoluteFilePath());
                 QString t = (mode == QLatin1String("effective")) ? preprocess(text, defines) : text;
                 auto blocks = extractBlocks(t, fi.absoluteFilePath(), typeName, preserveEscapes);
+                bool needFallback = blocks.isEmpty();
+                if (!needFallback && mode == QLatin1String("effective"))
+                {
+                    for (const auto &b : blocks)
+                    {
+                        if (b.strings.isEmpty()) { needFallback = true; break; }
+                    }
+                }
+                if (needFallback && mode == QLatin1String("effective"))
+                {
+                    auto rawBlocks = extractBlocks(text, fi.absoluteFilePath(), typeName, preserveEscapes);
+                    if (!rawBlocks.isEmpty())
+                        blocks = rawBlocks;
+                }
                 all.append(blocks);
             }
         }

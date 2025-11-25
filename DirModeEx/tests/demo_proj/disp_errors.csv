@@ -1,0 +1,7 @@
+﻿source_file,line_number,variable_name,text_cn,text_en,text_vn,text_ko,text_tr,text_ling
+"E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c","73","_disp_message_info1._title","","","","","",""
+"E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c","73","_disp_message_info1._info","显示的信息","示例4","Exam、、nple8","Exam4","Exam4","Exam4"
+"E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c","111","_disp_message_info2._title","标题1111","Exam4","Exam、、nple8","Exam4","Exam4","Exam4"
+"E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c","111","_disp_message_info2._info","测试111","测试112","测试113","测试114","测试112","测试112"
+"E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c","142","_disp_message_info3._title","标题1111","Exam4","Exam、、nple8","Exam4","Exam4","Exam4"
+"E:/code/cpeject/test_mooc-clin/DirModeEx/tests/demo_proj/src/demo2.c","142","_disp_message_info3._info","显示的信息","示例4","string1","string2","示例4","示例4"

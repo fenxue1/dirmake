@@ -20,44 +20,52 @@
  * - 第五列包含十六进制转义（"\x45\x78..."），用于验证转义解析；
  * - 末尾 `NULL` 作为哨兵；部分变量带 `static` 以测试存储类修饰。
  */
-
+#define test_array_def (1)
 const _Tr_TEXT var_simple = {
-    "示例6",
     "Example6",
-    "Example7",
-    "Example7",
-    "\x45\x78\x61\x6D\x70\x6C\x65\x32",
-    "Example2",
- NULL};
+    "Example6",
+    "Example6",
+    "Example6",
+    "Example6",
+    "Example6",
+    NULL
+};
 
 static const _Tr_TEXT var_simple2 = {
-    "示例8",
     "Example8",
-    "Example9",
-    "Example9",
-    "\x45\x78\x61\x6D\x70\x6C\x65",
-    "Example",
- NULL};
+    "Example8",
+    "Example8",
+    "Example8",
+    "Example8",
+    "Example8",
+    NULL
+};
 const _Tr_TEXT var_simple3 = {
-    "示例9",
     "Example9",
-    "Example10",
-    "Example10",
-    "\x45\x78\x61\x6D\x70\x6C\x65",
-    "Example",
- NULL};
+    "Example9",
+    "Example9",
+    "Example9",
+    "Example9",
+    "Example9",
+    NULL
+};
 const _Tr_TEXT var_simple4 = {
-    "示例9",
     "Example9",
-    "Example10",
-    "Example10",
-    "\x45\x78\x61\x6D\x70\x6C\x65",
-    "Example",
- NULL};
+    "Example9",
+    "Example9",
+    "Example9",
+    "Example9",
+    "Example9",
+    NULL
+};
 
 
  static const _Tr_TEXT var_maxtx1[22321] = {
+    #if(test_array_def == 1)
     { "示例1", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL },
+    #else 
+    { "示例1", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL },
+    #endif
     { "示例2", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL },
     { "示例3", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL },
     { "示例4", "示例4", "Exam、、nple8", "Exam4", "Exam4", "Exam4", NULL }
